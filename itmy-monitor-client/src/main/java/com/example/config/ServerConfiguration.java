@@ -1,11 +1,14 @@
 package com.example.config;
 
 import com.alibaba.fastjson2.JSONObject;
+import com.example.entity.BaseDetail;
 import com.example.entity.ConnectionConfig;
 import com.example.entity.Response;
-import com.example.entity.netUtils;
+import com.example.utils.netUtils;
+import com.example.utils.oshiUtils;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import java.io.File;
 import java.io.FileInputStream;
@@ -19,6 +22,8 @@ import java.util.Scanner;
 @Slf4j
 @Configuration
 public class ServerConfiguration {
+    @Autowired
+    oshiUtils oshiUtils;
     /*
     连接操作初始化
      */
@@ -30,52 +35,79 @@ public class ServerConfiguration {
         if (connectionConfig == null) {
             log.error("配置文件为空");
             //由于是控制台输入,默认请求成功!不成功会一直循环控制台输入
-            connectionConfig=getConnectionInformation(null);
-            //配置文件为空,将用户输入正确的配置信息,存储的文件
-            File file = new File("config/server.json");
-            file.getParentFile().mkdirs();
-            try (FileWriter fileWriter=new FileWriter(file)){
-                fileWriter.write(JSONObject.toJSONString(connectionConfig));
-            }
+            getConnectionInformation();
         }
         //配置文件不为空
         getConnectionInformation(connectionConfig);
+
+        BaseDetail baseDetail =oshiUtils.printHardwareInfo();
+        System.out.println(baseDetail);
     }
 
-    /*
-    获取控制台或配置类 发送连接 并封装返回信息
+    /**
+     * 通过配置文件 发送连接 并封装返回信息
+     * @param connectionConfig 配置文件信息
+     * @return
+     * @throws IOException
+     * @throws InterruptedException
      */
-    public ConnectionConfig  getConnectionInformation(ConnectionConfig connectionConfig) throws IOException, InterruptedException {
+    public void getConnectionInformation(ConnectionConfig connectionConfig) throws IOException, InterruptedException {
         log.info("正在发起连接");
         Response response;
         Map<String, String> map = new HashMap<>();
-        if (connectionConfig == null) {  //判断配置文件是否为空
-            //为空,控制台 输入请求信息
-            Scanner sc = new Scanner(System.in);
-            String address;
-            String Token;
-            do {
-                log.info("请输入客户端地址");
-                address = sc.nextLine();
-                log.info("请输入客户端生成的token");
-                Token = sc.nextLine();
-                map.put("Authorization", Token);
-                //netUtils.get此方法用于发送 请求(默认get)
-                response = netUtils.get(address, null, map);
-            } while (response.code() < 200 || response.code() > 300); //判断请求是否成功
-            return new ConnectionConfig(address,Token);
-        }
-        //不为空,配置文件发送请求(默认get)
         map.put("Authorization", connectionConfig.getToken());
         response=netUtils.get(connectionConfig.getAddress(), null, map);
         if(response.code()<200 || response.code()>300) {  //判断请求是否成功,
             log.info("请检查配置文件正确");
+            log.info("正在转向手动输入配置信息,请稍等.......");
+             getConnectionInformation();
         }
-        return null;
     }
 
-    /*
-    获取本地的连接配置
+    /**
+     * 手动输入配置信息
+     * @return
+     */
+    public void   getConnectionInformation() {
+        log.info("正在发起连接");
+        Response response;
+        Map<String, String> map = new HashMap<>();
+        //为空,控制台 输入请求信息
+        Scanner sc = new Scanner(System.in);
+        String address;
+        String Token;
+        do {
+            log.info("请输入客户端地址");
+            address = sc.nextLine();
+            log.info("请输入客户端生成的token");
+            Token = sc.nextLine();
+            map.put("Authorization", Token);
+            //netUtils.get此方法用于发送 请求(默认get)
+            response = netUtils.get(address, null, map);
+        } while (response.code() < 200 || response.code() > 300);
+        //配置文件为空,将用户输入正确的配置信息,存储的文件
+        upDataConnectionConfig(new ConnectionConfig(address,Token));
+    }
+
+    /**
+     * 更新配置文件
+     * @param connectionConfig 配置信息
+     */
+    public void upDataConnectionConfig(ConnectionConfig connectionConfig){
+        File file = new File("config/server.json");
+        if(file.exists()){
+            file.getParentFile().mkdirs();
+        }
+        try (FileWriter fileWriter=new FileWriter(file)){
+            fileWriter.write(JSONObject.toJSONString(connectionConfig));
+        }catch (Exception e ){
+            log.error("写入失败,请检查");
+        }
+    }
+
+    /**
+     * 获取本地的连接配置
+     * @return
      */
     public ConnectionConfig getLocalConnectionConfig() {
         File config = new File("config/server.json");

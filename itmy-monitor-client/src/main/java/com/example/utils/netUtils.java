@@ -1,6 +1,8 @@
-package com.example.entity;
+package com.example.utils;
 
 import com.alibaba.fastjson2.JSONObject;
+import com.example.entity.Response;
+import com.example.entity.RestBean;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import java.io.IOException;
