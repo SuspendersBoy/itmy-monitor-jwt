@@ -32,8 +32,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         String authorization = request.getHeader("Authorization");
+
+        //判断如果是 请求客户端相关的接口 就绕行 不判断jwt
+        if (request.getRequestURI().startsWith("/client")) filterChain.doFilter(request, response);
+        //以下为正常的jwt 校验
         DecodedJWT jwt = utils.resolveJwt(authorization);
         if(jwt != null) {
+            //解析过后封装用户信息 以通过security校验
             UserDetails user = utils.toUser(jwt);
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());

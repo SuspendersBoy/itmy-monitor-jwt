@@ -55,7 +55,8 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(conf -> conf
                         .requestMatchers("/api/auth/**", "/error").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        .anyRequest().hasAnyRole(Const.ROLE_DEFAULT)
+                        .requestMatchers("/client/**").permitAll()
+                        .anyRequest().hasAnyRole(Const.ROLE_DEFAULT) //这里表示所有的请求 都得包含user角色
                 )
                 .formLogin(conf -> conf
                         .loginProcessingUrl("/api/auth/login")
