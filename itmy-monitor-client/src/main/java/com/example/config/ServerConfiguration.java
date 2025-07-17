@@ -24,8 +24,13 @@ import java.util.Scanner;
 public class ServerConfiguration {
     @Autowired
     oshiUtils oshiUtils;
-    /*
-    连接操作初始化
+    String id; //注册成功返回的主键id
+    String address;; //封装以下请求地址
+
+    /**
+     * 连接操作初始化
+     * @throws IOException
+     * @throws InterruptedException
      */
     @PostConstruct
     public void getConnectionConfig() throws IOException, InterruptedException {
@@ -36,12 +41,19 @@ public class ServerConfiguration {
             log.error("配置文件为空");
             //由于是控制台输入,默认请求成功!不成功会一直循环控制台输入
             getConnectionInformation();
+        }else {
+            //配置文件不为空
+            getConnectionInformation(connectionConfig);
         }
-        //配置文件不为空
-        getConnectionInformation(connectionConfig);
 
+        //获取本地配置
         BaseDetail baseDetail =oshiUtils.printHardwareInfo();
-        System.out.println(baseDetail);
+        //上传本地配置
+        Map<String,String> clientId=new HashMap<>();
+        clientId.put("ClientId",id);
+        int last=address.lastIndexOf("/");
+        address=address.substring(0,last+1)+"addClientDetail";
+        netUtils.postJson(address,JSONObject.toJSONString(baseDetail),clientId);
     }
 
     /**
@@ -51,17 +63,20 @@ public class ServerConfiguration {
      * @throws IOException
      * @throws InterruptedException
      */
-    public void getConnectionInformation(ConnectionConfig connectionConfig) throws IOException, InterruptedException {
+    public void getConnectionInformation(ConnectionConfig connectionConfig) {
         log.info("正在发起连接");
-        Response response;
         Map<String, String> map = new HashMap<>();
         map.put("Authorization", connectionConfig.getToken());
-        response=netUtils.get(connectionConfig.getAddress(), null, map);
+        Response response;
+        address=connectionConfig.getAddress();
+        response=netUtils.get(address, null, map);
         if(response.code()<200 || response.code()>300) {  //判断请求是否成功,
-            log.info("请检查配置文件正确");
+            log.info("请检查配置文件是否正确");
             log.info("正在转向手动输入配置信息,请稍等.......");
              getConnectionInformation();
+             return;
         }
+        id=(String)response.data();
     }
 
     /**
@@ -74,12 +89,11 @@ public class ServerConfiguration {
         Map<String, String> map = new HashMap<>();
         //为空,控制台 输入请求信息
         Scanner sc = new Scanner(System.in);
-        String address;
         String Token;
         do {
-            log.info("请输入客户端地址");
+            log.info("请输入客户端地址:==");
             address = sc.nextLine();
-            log.info("请输入客户端生成的token");
+            log.info("请输入客户端生成的token:==");
             Token = sc.nextLine();
             map.put("Authorization", Token);
             //netUtils.get此方法用于发送 请求(默认get)
@@ -87,6 +101,8 @@ public class ServerConfiguration {
         } while (response.code() < 200 || response.code() > 300);
         //配置文件为空,将用户输入正确的配置信息,存储的文件
         upDataConnectionConfig(new ConnectionConfig(address,Token));
+        //将写入返回的id值
+        id=(String)response.data();
     }
 
     /**
@@ -114,6 +130,7 @@ public class ServerConfiguration {
         if (config.exists()) {
             try (FileInputStream fileInputStream = new FileInputStream(config)) {
                 String fig = new String(fileInputStream.readAllBytes(), StandardCharsets.UTF_8);
+                            log.error("读取配置文件成功");
                 return JSONObject.parseObject(fig, ConnectionConfig.class);
             } catch (Exception e) {
                 log.error("读取配置文件失败");

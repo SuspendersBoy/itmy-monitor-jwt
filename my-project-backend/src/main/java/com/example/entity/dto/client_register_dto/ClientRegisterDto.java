@@ -1,5 +1,6 @@
 package com.example.entity.dto.client_register_dto;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
@@ -12,9 +13,9 @@ import java.util.Date;
 @TableName("db_client_register")
 @AllArgsConstructor
 @NoArgsConstructor
-public class ClientRegister {
-    @TableId
-    private Integer id;
+public class ClientRegisterDto {
+    @TableId(type = IdType.ASSIGN_UUID)
+    private String id;
     private String name;
     private String token;
     private Date registerTime;

@@ -1,4 +1,4 @@
 package com.example.entity;
 
-public record Response(int code, String message, String token,Object data) {
+public record Response(int code, Object message, String token,Object data) {
 }

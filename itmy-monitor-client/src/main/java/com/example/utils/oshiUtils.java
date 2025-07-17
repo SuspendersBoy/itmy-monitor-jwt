@@ -6,13 +6,11 @@ import org.springframework.stereotype.Component;
 import oshi.SystemInfo;
 import oshi.hardware.*;
 import oshi.software.os.*;
-
 import java.io.File;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
 @Component

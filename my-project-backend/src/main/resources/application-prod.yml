@@ -1,4 +1,7 @@
 # 生产环境配置
+logging:
+  level:
+    org.springframework.security: OFF  # 关闭 Spring Security 所有日志
 springdoc:
   paths-to-match: /api/**
   swagger-ui:

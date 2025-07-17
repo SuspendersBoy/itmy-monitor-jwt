@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  */
 @Component
 @Slf4j
-public class netUtils {
+public class  netUtils<T> {
     private static final int DEFAULT_TIMEOUT = 30; // 默认超时时间（秒）
     private static final HttpClient client;
 
@@ -221,9 +221,9 @@ public class netUtils {
         //判断时候注册成功
         if (restBean.code() >= 200 && restBean.code() < 300) {
             log.info("注册成功");
-            return new Response(200, null, null, null);
+            return new Response(200,"注册成功", null, restBean.data());
         }
-        log.info("注册失败");
+        log.info("注册失败,请检查请求内容或者请求地址");
         return new Response(401, null, null, null);
     }
 
