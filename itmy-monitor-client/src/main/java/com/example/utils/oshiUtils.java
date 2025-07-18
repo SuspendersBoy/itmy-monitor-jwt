@@ -24,7 +24,7 @@ public class oshiUtils {
      */
     public  BaseDetail printHardwareInfo() {
         System.out.println("=== 硬件配置信息 ===");
-
+        BaseDetail baseDetail=new BaseDetail();
 
         List<NetworkIF> networks = hardware.getNetworkIFs();
         NetworkIF ip=null;
@@ -42,21 +42,27 @@ public class oshiUtils {
                 }
             } catch (SocketException e) {
                 log.error("读取网络信息出错");
-                ip=null;
+                return null;
             }
 
         }
+        try {
 
-      return  new BaseDetail()
-                .setOsArch(System.getProperty("os.arch"))
-                .setOsName(System.getProperty("os.name"))
-                .setOsVersion(System.getProperty("os.version"))
-                .setOsBit(os.getBitness())
-                .setCpuName(hardware.getProcessor().getProcessorIdentifier().getName())
-                .setCpuCore(hardware.getProcessor().getLogicalProcessorCount())
-                .setMemory((double) hardware.getMemory().getTotal() /Math.pow(1024.0, 3))
-                .setDisk(Arrays.stream(File.listRoots()).mapToLong(File::getTotalSpace).sum( ) /Math.pow(1024.0, 3))
-                .setIp(ip.getIPv4addr()[0]);
+            baseDetail.setOsArch(System.getProperty("os.arch"))
+                    .setOsName(System.getProperty("os.name"))
+                    .setOsVersion(System.getProperty("os.version"))
+                    .setOsBit(os.getBitness())
+                    .setCpuName(hardware.getProcessor().getProcessorIdentifier().getName())
+                    .setCpuCore(hardware.getProcessor().getLogicalProcessorCount())
+                    .setMemory((double) hardware.getMemory().getTotal() /Math.pow(1024.0, 3))
+                    .setDisk(Arrays.stream(File.listRoots()).mapToLong(File::getTotalSpace).sum( ) /Math.pow(1024.0, 3))
+                    .setIp(ip.getIPv4addr()[0]);
+        }catch (Exception e){
+            return null;
+        }
+
+
+      return baseDetail;
     }
 
 //    /**

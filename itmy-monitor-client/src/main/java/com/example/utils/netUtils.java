@@ -214,16 +214,20 @@ public class  netUtils<T> {
             log.error("请求! 路径:{}", request.uri() + "--失败");
             return new Response(403, null, null, null);
         }
+
+
         //请求成功
         log.info("请求! 路径:{}", request.uri() + "--成功");
         String body = response.body(); //获取请求成功后的返回信息
         RestBean restBean = JSONObject.parseObject(body, RestBean.class); //将响应值进行序列化,成RestBean
-        //判断时候注册成功
+
+
+        //判断请求响应是否成功
         if (restBean.code() >= 200 && restBean.code() < 300) {
-            log.info("注册成功");
+            log.info("请求响应成功");
             return new Response(200,"注册成功", null, restBean.data());
         }
-        log.info("注册失败,请检查请求内容或者请求地址");
+        log.info("请求响应成功,请检查请求内容或者请求地址");
         return new Response(401, null, null, null);
     }
 
