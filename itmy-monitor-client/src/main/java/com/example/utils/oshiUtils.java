@@ -1,6 +1,7 @@
 package com.example.utils;
 
 import com.example.entity.BaseDetail;
+import com.example.entity.RuntimeDetail;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import oshi.SystemInfo;
@@ -22,23 +23,23 @@ public class oshiUtils {
     /**
      * 1. 硬件信息（系统 CPU、内存、磁盘、显卡）
      */
-    public  BaseDetail printHardwareInfo() {
+    public BaseDetail printHardwareInfo() {
         System.out.println("=== 硬件配置信息 ===");
-        BaseDetail baseDetail=new BaseDetail();
+        BaseDetail baseDetail = new BaseDetail();
 
         List<NetworkIF> networks = hardware.getNetworkIFs();
-        NetworkIF ip=null;
+        NetworkIF ip = null;
         for (NetworkIF network : networks) {
             try {
-                String[] iPv4addr=network.getIPv4addr();
-                NetworkInterface ni =network.queryNetworkInterface();
+                String[] iPv4addr = network.getIPv4addr();
+                NetworkInterface ni = network.queryNetworkInterface();
                 if (!ni.isLoopback()
                         && !ni.isPointToPoint()
                         && ni.isUp()
                         && !ni.isVirtual()
                         && (ni.getName().startsWith("eth") || ni.getName().startsWith("en"))
                         && iPv4addr.length > 0) {
-                    ip=network;
+                    ip = network;
                 }
             } catch (SocketException e) {
                 log.error("读取网络信息出错");
@@ -54,82 +55,86 @@ public class oshiUtils {
                     .setOsBit(os.getBitness())
                     .setCpuName(hardware.getProcessor().getProcessorIdentifier().getName())
                     .setCpuCore(hardware.getProcessor().getLogicalProcessorCount())
-                    .setMemory((double) hardware.getMemory().getTotal() /Math.pow(1024.0, 3))
-                    .setDisk(Arrays.stream(File.listRoots()).mapToLong(File::getTotalSpace).sum( ) /Math.pow(1024.0, 3))
+                    .setMemory((double) hardware.getMemory().getTotal() / Math.pow(1024.0, 3))
+                    .setDisk(Arrays.stream(File.listRoots()).mapToLong(File::getTotalSpace).sum() / Math.pow(1024.0, 3))
                     .setIp(ip.getIPv4addr()[0]);
-        }catch (Exception e){
+        } catch (Exception e) {
             return null;
         }
 
 
-      return baseDetail;
+        return baseDetail;
     }
 
-//    /**
-//     * 2. 操作系统信息（版本、启动时间、位数）
-//     */
-//    private static void printOSInfo(OperatingSystem os) {
-//        System.out.println("\n=== 操作系统配置信息 ===");
-//        System.out.println("系统名称: " + os.getName());
-//        System.out.println("系统版本: " + os.getVersionInfo().toString());
-//        System.out.println("系统位数: " + os.getBitness() + " 位");
-//        System.out.println("系统启动时间: " + FormatUtil.formatDateTime(os.getSystemBootTime()));
-//        System.out.println("系统运行时间: " + FormatUtil.formatElapsedSecs(os.getSystemUptime()));
-//    }
-//
-//    /**
-//     * 3. 进程信息（CPU 占用前 5 的进程）
-//     */
-//    private static void printProcessInfo(OperatingSystem os) {
-//        System.out.println("\n=== 进程配置信息（前 5） ===");
-//        List<OSProcess> processes = os.getProcesses(
-//                OperatingSystem.ProcessFiltering.VALID_PROCESS,
-//                OperatingSystem.ProcessSorting.CPU_DESC,
-//                5
-//        );
-//
-//        processes.forEach(process -> {
-//            System.out.println("\n进程名称: " + process.getName());
-//            System.out.println("进程 PID: " + process.getProcessID());
-//            System.out.println("CPU 占用: " + String.format("%.2f%%", process.getProcessCpuLoadCumulative() * 100));
-//            System.out.println("内存占用: " + FormatUtil.formatBytes(process.getResidentSetSize()));
-//        });
-//    }
-//
-//    /**
-//     * 4. 网络信息（IP、MAC、带宽）
-//     */
-//    private static void printNetworkInfo(HardwareAbstractionLayer hardware, OperatingSystem os) {
-//        System.out.println("\n=== 网络配置信息 ===");
-//
-//        // 网络接口信息
-//        List<NetworkIF> networks = hardware.getNetworkIFs();
-//        networks.forEach(net -> {
-//            System.out.println("\n网卡名称: " + net.getName());
-//            System.out.println("MAC 地址: " + net.getMacaddr());
-//            System.out.println("IP 地址: " + net.getIPv4addr());
-//            System.out.println("上传带宽: " + FormatUtil.formatBytes(net.getBytesSent()) + "/s");
-//            System.out.println("下载带宽: " + FormatUtil.formatBytes(net.getBytesReceived()) + "/s");
-//        });
-//
-//        // 网络协议统计（TCP/UDP 连接数）
-//        InternetProtocolStats ipStats = os.getInternetProtocolStats();
-//        System.out.println("\nTCP 连接数: " + ipStats.getTcpConnections());
-//        System.out.println("UDP 数据包数: " + ipStats.getUdpDatagramsReceived());
-//    }
-//
-//    /**
-//     * 5. 文件系统信息（磁盘分区、使用率）
-//     */
-//    private static void printFileSystemInfo(OperatingSystem os) {
-//        System.out.println("\n=== 文件系统配置信息 ===");
-//        FileSystem fileSystem = os.getFileSystem();
-//        fileSystem.getMountedFilesystems().forEach(fs -> {
-//            System.out.println("\n分区路径: " + fs.getMountPoint());
-//            System.out.println("文件系统类型: " + fs.getType());
-//            System.out.println("总容量: " + FormatUtil.formatBytes(fs.getTotalSpace()));
-//            System.out.println("已用容量: " + FormatUtil.formatBytes(fs.getTotalSpace() - fs.getFreeSpace()));
-//            System.out.println("使用率: " + String.format("%.2f%%", fs.getUsage() * 100));
-//        });
-//    }
+    public RuntimeDetail getRuntimeDetail() {
+        HardwareAbstractionLayer hardware = systemInfo.getHardware();
+        OperatingSystem os = systemInfo.getOperatingSystem();
+
+        RuntimeDetail detail = new RuntimeDetail();
+        detail.setTimestamp(System.currentTimeMillis());
+
+        // 1. CPU 使用率（系统总体）
+        CentralProcessor processor = hardware.getProcessor();
+        // 第一次获取 ticks
+        long[] prevTicks = processor.getSystemCpuLoadTicks();
+        try {
+            // 等待 100 毫秒，给 CPU 产生 ticks 变化的时间
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+       // 第二次基于间隔后的 ticks 计算使用率
+        double cpuUsage = processor.getSystemCpuLoadBetweenTicks(prevTicks) * 100;
+        detail.setCpuUsage(cpuUsage);
+
+        // 2. 内存使用率
+        GlobalMemory memory = hardware.getMemory();
+        double memoryUsage = ((double) (memory.getTotal() - memory.getAvailable()) / memory.getTotal()) * 100;
+        detail.setMemoryUsage(memoryUsage);
+
+        // 3. 磁盘使用率（取所有非虚拟磁盘的总使用率）
+        // 3. 磁盘使用率（取所有非虚拟磁盘的总使用率）
+        double totalDiskUsed = 0;
+        double totalDiskSize = 0;
+        FileSystem fileSystem = os.getFileSystem();
+        for (HWDiskStore disk : hardware.getDiskStores()) {
+            for (HWPartition partition : disk.getPartitions()) {
+                // 遍历文件存储，找到匹配挂载点的
+                for (OSFileStore fileStore : fileSystem.getFileStores()) {
+                    if (fileStore.getMount().equals(partition.getMountPoint())) {
+                        totalDiskUsed += fileStore.getTotalSpace() - fileStore.getUsableSpace();
+                        totalDiskSize += fileStore.getTotalSpace();
+                        break; // 找到对应存储，退出内层循环
+                    }
+                }
+            }
+        }
+        double diskUsage = (totalDiskSize > 0) ? (totalDiskUsed / totalDiskSize) * 100 : 0;
+        detail.setDiskUsage(diskUsage);
+
+        // 4. 网络上下行流量（取所有网络接口的总和）
+        long networkUpload = 0;
+        long networkDownload = 0;
+        for (NetworkIF net : hardware.getNetworkIFs()) {
+            net.updateAttributes(); // 更新网络接口统计信息
+            networkUpload += net.getBytesSent();
+            networkDownload += net.getBytesRecv();
+        }
+        detail.setNetworkUpload(networkUpload);
+        detail.setNetworkDownload(networkDownload);
+
+        // 5. 磁盘读写（取所有磁盘的总和）
+        long diskRead = 0;
+        long diskWrite = 0;
+        for (HWDiskStore disk : hardware.getDiskStores()) {
+            disk.updateAttributes(); // 更新磁盘统计信息
+            diskRead += disk.getReadBytes();
+            diskWrite += disk.getWriteBytes();
+        }
+        detail.setDiskRead(diskRead);
+        detail.setDiskWrite(diskWrite);
+
+        return detail;
+    }
+
 }

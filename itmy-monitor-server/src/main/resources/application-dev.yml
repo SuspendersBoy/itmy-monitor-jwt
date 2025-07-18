@@ -1,0 +1,53 @@
+# 开发环境配置
+logging:
+  level:
+    org.springframework.security: OFF  # 关闭 Spring Security 所有日志
+springdoc:
+  paths-to-match: /api/**
+  swagger-ui:
+    operations-sorter: alpha
+spring:
+  mail:
+    host: smtp.163.com
+    username: 17870285953@163.com
+    password: NUfPdyYsZDpRK5fV
+  rabbitmq:
+    addresses: 192.168.101.129
+    username: admin
+    password: admin
+    virtual-host: /
+  datasource:
+    url: jdbc:mysql://localhost:3306/monitor
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  security:
+    jwt:
+      key: 'hmslovewyc'
+      expire: 72
+      limit:
+        base: 10
+        upgrade: 300
+        frequency: 30
+    filter:
+      order: -100
+  web:
+    verify:
+      mail-limit: 60
+    flow:
+      period: 3
+      limit: 50
+      block: 30
+    cors:
+      origin: '*'
+      credentials: false
+      methods: '*'
+influxdb:
+  influxdbUrl: http://localhost:8086
+  username: root
+  password: 12345678
+  org: itmy
+  bucket: monitor
+
+server:
+  port: 8080

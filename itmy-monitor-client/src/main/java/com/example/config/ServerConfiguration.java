@@ -4,6 +4,7 @@ import com.alibaba.fastjson2.JSONObject;
 import com.example.entity.BaseDetail;
 import com.example.entity.ConnectionConfig;
 import com.example.entity.Response;
+import com.example.entity.RuntimeDetail;
 import com.example.utils.netUtils;
 import com.example.utils.oshiUtils;
 import jakarta.annotation.PostConstruct;
@@ -27,7 +28,7 @@ public class ServerConfiguration {
     String id; //注册成功返回的主键id
     String address;; //封装以下请求地址
     Map<String, String> map = new HashMap<>();//用于封装请求头
-
+    RuntimeDetail runtimeDetail=new RuntimeDetail();
     /**
      * 连接操作初始化
      * @throws IOException
@@ -47,19 +48,47 @@ public class ServerConfiguration {
             //配置文件不为空
             getConnectionInformation(connectionConfig);
         }
+        //上传配置信息
+        detail();
+        //上传运行时数据
+        while (true) {
+            runtime();
+            Thread.sleep(10000);
+        }
+    }
 
+    /**
+     * 获取服务器运行时数据
+     */
+    public  void runtime()  {
+
+        int last=address.lastIndexOf("/");
+        address=address.substring(0,last+1)+"runtime";
+        try {
+            map.put("ClientId",id);
+            runtimeDetail=oshiUtils.getRuntimeDetail();
+            netUtils.postJson(address,JSONObject.toJSONString(runtimeDetail),map);
+        }catch (Exception e){
+            log.error("请检查请求地址");
+        }
+    }
+
+    /**
+     * 获取服务器配置信息
+     */
+    public void  detail()  {
         log.info("读取配置信息中.....");
         BaseDetail baseDetail =oshiUtils.printHardwareInfo();
-        if (baseDetail != null) {
-            log.info("读取成功,正在上传配置 信息");
-            Map<String,String> clientId=new HashMap<>();
-            clientId.put("ClientId",id);
-            int last=address.lastIndexOf("/");
-            address=address.substring(0,last+1)+"addClientDetail";
-            netUtils.postJson(address,JSONObject.toJSONString(baseDetail),clientId);
-        }else {
-            log.error("读取配置文件失败");
-        }
+       if(baseDetail!=null){
+           map.put("ClientId",id);
+           int last=address.lastIndexOf("/");
+           address=address.substring(0,last+1)+"runtime";
+           try {
+               netUtils.postJson(address,JSONObject.toJSONString(baseDetail),map);
+           } catch (Exception e){
+               log.error("请检查请求地址");
+           }
+       }
     }
 
     /**
