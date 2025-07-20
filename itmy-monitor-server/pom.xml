@@ -77,11 +77,6 @@
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <!--    消息队列模块    -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-amqp</artifactId>
-        </dependency>
         <!--    FastJSON2框架    -->
         <dependency>
             <groupId>com.alibaba.fastjson2</groupId>

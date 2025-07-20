@@ -42,11 +42,11 @@ spring:
       origin: '*'
       credentials: false
       methods: '*'
-server:
-  port: 8081
 influxdb:
   influxdbUrl: http://localhost:8086
   username: root
   password: 12345678
   org: itmy
   bucket: monitor
+server:
+  port: 8081

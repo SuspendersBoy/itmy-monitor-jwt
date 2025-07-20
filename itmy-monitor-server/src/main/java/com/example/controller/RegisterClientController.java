@@ -26,6 +26,7 @@ public class RegisterClientController {
      */
     @GetMapping("addClient")
     public RestBean<String> addClientToRegister(@RequestHeader(value = "Authorization", required = false) String token) {
+        System.out.println("我被调用啦");
         if (token == null) return RestBean.unauthorized("请求参数为空");
         String id=clientRegisterService.addClientToRegister(token);
         return id!=null ? RestBean.success(id) : RestBean.failure(401, "注册失败,请检查token");
@@ -38,7 +39,9 @@ public class RegisterClientController {
      * @return
      */
     @PostMapping("addClientDetail")
-    public RestBean<Void> addClientDetail(@RequestHeader("ClientId")String clientId, @RequestBody BaseDetailVO baseDetailVo) {
+    public RestBean<Void> addClientDetail(
+            @RequestHeader("ClientId")String clientId,
+            @RequestBody BaseDetailVO baseDetailVo) {
         //封装dto信息
         BaseDetailDto baseDetailDto=new BaseDetailDto();
         BeanUtils.copyProperties(baseDetailVo,baseDetailDto);
@@ -47,11 +50,18 @@ public class RegisterClientController {
         return RestBean.success();
     }
 
+    /**
+     * 注册服务器实时信息
+     * @param clientId 服务器id
+     * @param runtimeDetailVO 试试信息
+     * @return
+     */
     @PostMapping("runtime")
-    public RestBean<Void> addClientDetail(@RequestHeader("ClientId")String clientId ,@RequestBody RuntimeDetailVO runtimeDetailVO) {
+    public RestBean<Void> runtime(
+            @RequestHeader("ClientId")String clientId ,
+            @RequestBody RuntimeDetailVO runtimeDetailVO) {
         //封装dto信息
-        System.out.println(runtimeDetailVO);
-        clientDetailService.addClientDetail(clientId,runtimeDetailVO);
-        return RestBean.success();
+        clientDetailService.runtime(clientId,runtimeDetailVO);
+            return RestBean.success();
     }
 }

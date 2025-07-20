@@ -36,14 +36,14 @@ public class AuthorizeController {
      * @param request 请求
      * @return 是否请求成功
      */
-    @GetMapping("/ask-code")
-    @Operation(summary = "请求邮件验证码")
-    public RestBean<Void> askVerifyCode(@RequestParam @Email String email,
-                                        @RequestParam @Pattern(regexp = "(register|reset)")  String type,
-                                        HttpServletRequest request){
-        return this.messageHandle(() ->
-                accountService.registerEmailVerifyCode(type, String.valueOf(email), request.getRemoteAddr()));
-    }
+//    @GetMapping("/ask-code")
+//    @Operation(summary = "请求邮件验证码")
+//    public RestBean<Void> askVerifyCode(@RequestParam @Email String email,
+//                                        @RequestParam @Pattern(regexp = "(register|reset)")  String type,
+//                                        HttpServletRequest request){
+//        return this.messageHandle(() ->
+//                accountService.registerEmailVerifyCode(type, String.valueOf(email), request.getRemoteAddr()));
+//    }
 
     /**
      * 进行用户注册操作，需要先请求邮件验证码

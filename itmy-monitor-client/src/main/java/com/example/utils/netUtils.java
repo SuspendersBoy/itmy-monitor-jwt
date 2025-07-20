@@ -70,7 +70,7 @@ public class  netUtils<T> {
      */
     public static Response get(String url, Map<String, String> params, Map<String, String> headers) {
         String fullUrl = buildUrlWithParams(url, params);
-        HttpRequest request = null;
+        HttpRequest request ;
         try {
             //封装 HttpRequest 请求
             request = buildRequest(fullUrl, "GET", null, headers);
@@ -224,10 +224,10 @@ public class  netUtils<T> {
 
         //判断请求响应是否成功
         if (restBean.code() >= 200 && restBean.code() < 300) {
-            log.info("请求响应成功");
+            log.info("响应成功");
             return new Response(200,"注册成功", null, restBean.data());
         }
-        log.info("请求响应成功,请检查请求内容或者请求地址");
+        log.error("响应失败,请检查请求内容或者请求地址");
         return new Response(401, null, null, null);
     }
 

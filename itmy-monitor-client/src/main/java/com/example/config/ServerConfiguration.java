@@ -25,8 +25,9 @@ import java.util.Scanner;
 public class ServerConfiguration {
     @Autowired
     oshiUtils oshiUtils;
+
     String id; //注册成功返回的主键id
-    String address;; //封装以下请求地址
+    String address;; //封装请求地址
     Map<String, String> map = new HashMap<>();//用于封装请求头
     RuntimeDetail runtimeDetail=new RuntimeDetail();
     /**
@@ -35,8 +36,8 @@ public class ServerConfiguration {
      * @throws InterruptedException
      */
     @PostConstruct
-    public void getConnectionConfig() throws IOException, InterruptedException {
-        log.info("加载服务端连接配置....");
+    public void getConnectionConfig() throws InterruptedException {
+        log.info("加载服务端文件配置....");
         //获取配置文件
         ConnectionConfig connectionConfig = getLocalConnectionConfig();
         if (connectionConfig == null) {
@@ -48,6 +49,7 @@ public class ServerConfiguration {
             //配置文件不为空
             getConnectionInformation(connectionConfig);
         }
+
         //上传配置信息
         detail();
         //上传运行时数据
@@ -61,15 +63,17 @@ public class ServerConfiguration {
      * 获取服务器运行时数据
      */
     public  void runtime()  {
-
-        int last=address.lastIndexOf("/");
-        address=address.substring(0,last+1)+"runtime";
-        try {
+        log.info("读取服务器运行时数据");
+        runtimeDetail=oshiUtils.getRuntimeDetail();
+        if (runtimeDetail != null) {
             map.put("ClientId",id);
-            runtimeDetail=oshiUtils.getRuntimeDetail();
-            netUtils.postJson(address,JSONObject.toJSONString(runtimeDetail),map);
-        }catch (Exception e){
-            log.error("请检查请求地址");
+            int last=address.lastIndexOf("/");
+            address=address.substring(0,last+1)+"runtime";
+            try {
+                netUtils.postJson(address,JSONObject.toJSONString(runtimeDetail),map);
+            }catch (Exception e){
+                log.error("请检查请求地址");
+            }
         }
     }
 
@@ -77,12 +81,11 @@ public class ServerConfiguration {
      * 获取服务器配置信息
      */
     public void  detail()  {
-        log.info("读取配置信息中.....");
         BaseDetail baseDetail =oshiUtils.printHardwareInfo();
        if(baseDetail!=null){
            map.put("ClientId",id);
            int last=address.lastIndexOf("/");
-           address=address.substring(0,last+1)+"runtime";
+           address=address.substring(0,last+1)+"addClientDetail";
            try {
                netUtils.postJson(address,JSONObject.toJSONString(baseDetail),map);
            } catch (Exception e){
@@ -99,10 +102,10 @@ public class ServerConfiguration {
      * @throws InterruptedException
      */
     public void getConnectionInformation(ConnectionConfig connectionConfig) {
-        log.info("正在发起连接");
-        map.put("Authorization", connectionConfig.getToken());
         Response response;
+        map.put("Authorization", connectionConfig.getToken());
         address=connectionConfig.getAddress();
+        log.info("正在发起连接");
         response=netUtils.get(address, null, map);
         if(response.code()<200 || response.code()>300) {  //判断请求是否成功,
             log.info("请检查配置文件是否正确");
@@ -119,18 +122,16 @@ public class ServerConfiguration {
      * @return
      */
     public void   getConnectionInformation() {
-        log.info("正在发起连接");
         Response response;
-        //为空,控制台 输入请求信息
-        Scanner sc = new Scanner(System.in);
         String Token;
+        Scanner sc = new Scanner(System.in);   //为空,控制台 输入请求信息
         do {
             log.info("请输入客户端地址:==");
             address = sc.nextLine();
             log.info("请输入客户端生成的token:==");
             Token = sc.nextLine();
             map.put("Authorization", Token);
-            //netUtils.get此方法用于发送 请求(默认get)
+            log.info("正在发起连接");
             response = netUtils.get(address, null, map);
         } while (response.code() < 200 || response.code() > 300);
         //配置文件为空,将用户输入正确的配置信息,存储的文件

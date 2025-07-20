@@ -28,7 +28,7 @@ public class oshiUtils {
         BaseDetail baseDetail = new BaseDetail();
 
         List<NetworkIF> networks = hardware.getNetworkIFs();
-        NetworkIF ip = null;
+        NetworkIF ip=null;
         for (NetworkIF network : networks) {
             try {
                 String[] iPv4addr = network.getIPv4addr();
@@ -67,73 +67,77 @@ public class oshiUtils {
     }
 
     public RuntimeDetail getRuntimeDetail() {
-        HardwareAbstractionLayer hardware = systemInfo.getHardware();
-        OperatingSystem os = systemInfo.getOperatingSystem();
-
         RuntimeDetail detail = new RuntimeDetail();
-        detail.setTimestamp(System.currentTimeMillis());
-
-        // 1. CPU 使用率（系统总体）
-        CentralProcessor processor = hardware.getProcessor();
-        // 第一次获取 ticks
-        long[] prevTicks = processor.getSystemCpuLoadTicks();
         try {
-            // 等待 100 毫秒，给 CPU 产生 ticks 变化的时间
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-       // 第二次基于间隔后的 ticks 计算使用率
-        double cpuUsage = processor.getSystemCpuLoadBetweenTicks(prevTicks) * 100;
-        detail.setCpuUsage(cpuUsage);
+            HardwareAbstractionLayer hardware = systemInfo.getHardware();
+            OperatingSystem os = systemInfo.getOperatingSystem();
 
-        // 2. 内存使用率
-        GlobalMemory memory = hardware.getMemory();
-        double memoryUsage = ((double) (memory.getTotal() - memory.getAvailable()) / memory.getTotal()) * 100;
-        detail.setMemoryUsage(memoryUsage);
+            detail.setTimestamp(System.currentTimeMillis());
 
-        // 3. 磁盘使用率（取所有非虚拟磁盘的总使用率）
-        // 3. 磁盘使用率（取所有非虚拟磁盘的总使用率）
-        double totalDiskUsed = 0;
-        double totalDiskSize = 0;
-        FileSystem fileSystem = os.getFileSystem();
-        for (HWDiskStore disk : hardware.getDiskStores()) {
-            for (HWPartition partition : disk.getPartitions()) {
-                // 遍历文件存储，找到匹配挂载点的
-                for (OSFileStore fileStore : fileSystem.getFileStores()) {
-                    if (fileStore.getMount().equals(partition.getMountPoint())) {
-                        totalDiskUsed += fileStore.getTotalSpace() - fileStore.getUsableSpace();
-                        totalDiskSize += fileStore.getTotalSpace();
-                        break; // 找到对应存储，退出内层循环
+            // 1. CPU 使用率（系统总体）
+            CentralProcessor processor = hardware.getProcessor();
+            // 第一次获取 ticks
+            long[] prevTicks = processor.getSystemCpuLoadTicks();
+            try {
+                // 等待 100 毫秒，给 CPU 产生 ticks 变化的时间
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            // 第二次基于间隔后的 ticks 计算使用率
+            double cpuUsage = processor.getSystemCpuLoadBetweenTicks(prevTicks) * 100;
+            detail.setCpuUsage(cpuUsage);
+
+            // 2. 内存使用率
+            GlobalMemory memory = hardware.getMemory();
+            double memoryUsage = ((double) (memory.getTotal() - memory.getAvailable()) / memory.getTotal()) * 100;
+            detail.setMemoryUsage(memoryUsage);
+
+            // 3. 磁盘使用率（取所有非虚拟磁盘的总使用率）
+            // 3. 磁盘使用率（取所有非虚拟磁盘的总使用率）
+            double totalDiskUsed = 0;
+            double totalDiskSize = 0;
+            FileSystem fileSystem = os.getFileSystem();
+            for (HWDiskStore disk : hardware.getDiskStores()) {
+                for (HWPartition partition : disk.getPartitions()) {
+                    // 遍历文件存储，找到匹配挂载点的
+                    for (OSFileStore fileStore : fileSystem.getFileStores()) {
+                        if (fileStore.getMount().equals(partition.getMountPoint())) {
+                            totalDiskUsed += fileStore.getTotalSpace() - fileStore.getUsableSpace();
+                            totalDiskSize += fileStore.getTotalSpace();
+                            break; // 找到对应存储，退出内层循环
+                        }
                     }
                 }
             }
-        }
-        double diskUsage = (totalDiskSize > 0) ? (totalDiskUsed / totalDiskSize) * 100 : 0;
-        detail.setDiskUsage(diskUsage);
+            double diskUsage = (totalDiskSize > 0) ? (totalDiskUsed / totalDiskSize) * 100 : 0;
+            detail.setDiskUsage(diskUsage);
 
-        // 4. 网络上下行流量（取所有网络接口的总和）
-        long networkUpload = 0;
-        long networkDownload = 0;
-        for (NetworkIF net : hardware.getNetworkIFs()) {
-            net.updateAttributes(); // 更新网络接口统计信息
-            networkUpload += net.getBytesSent();
-            networkDownload += net.getBytesRecv();
-        }
-        detail.setNetworkUpload(networkUpload);
-        detail.setNetworkDownload(networkDownload);
+            // 4. 网络上下行流量（取所有网络接口的总和）
+            long networkUpload = 0;
+            long networkDownload = 0;
+            for (NetworkIF net : hardware.getNetworkIFs()) {
+                net.updateAttributes(); // 更新网络接口统计信息
+                networkUpload += net.getBytesSent();
+                networkDownload += net.getBytesRecv();
+            }
+            detail.setNetworkUpload(networkUpload);
+            detail.setNetworkDownload(networkDownload);
 
-        // 5. 磁盘读写（取所有磁盘的总和）
-        long diskRead = 0;
-        long diskWrite = 0;
-        for (HWDiskStore disk : hardware.getDiskStores()) {
-            disk.updateAttributes(); // 更新磁盘统计信息
-            diskRead += disk.getReadBytes();
-            diskWrite += disk.getWriteBytes();
-        }
-        detail.setDiskRead(diskRead);
-        detail.setDiskWrite(diskWrite);
+            // 5. 磁盘读写（取所有磁盘的总和）
+            long diskRead = 0;
+            long diskWrite = 0;
+            for (HWDiskStore disk : hardware.getDiskStores()) {
+                disk.updateAttributes(); // 更新磁盘统计信息
+                diskRead += disk.getReadBytes();
+                diskWrite += disk.getWriteBytes();
+            }
+            detail.setDiskRead(diskRead);
+            detail.setDiskWrite(diskWrite);
 
+        }catch (Exception e){
+            return null;
+        }
         return detail;
     }
 

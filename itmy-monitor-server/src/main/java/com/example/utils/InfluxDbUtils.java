@@ -25,12 +25,16 @@ public class InfluxDbUtils {
     String bucket;
     @Value("${influxdb.org}")
     String org;
-
     InfluxDBClient client;
+
+    /**
+     * 时序数据库工具类
+     */
     @PostConstruct
     private void init(){
         client=InfluxDBClientFactory.create(influxdbUrl,username,password.toCharArray());
     }
+
     public void writRuntimeData(String clientId, RuntimeDetailVO vo){
         RuntimeDataDto runtimeDataDto =new RuntimeDataDto();
         BeanUtils.copyProperties(vo, runtimeDataDto);

@@ -11,7 +11,7 @@ import com.example.service.AccountService;
 import com.example.utils.Const;
 import com.example.utils.FlowUtils;
 import jakarta.annotation.Resource;
-import org.springframework.amqp.core.AmqpTemplate;
+//import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.core.userdetails.User;
@@ -35,8 +35,8 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, AccountDto> i
     @Value("${spring.web.verify.mail-limit}")
     int verifyLimit;
 
-    @Resource
-    AmqpTemplate rabbitTemplate;
+//    @Resource
+//    AmqpTemplate rabbitTemplate;
 
     @Resource
     StringRedisTemplate stringRedisTemplate;
@@ -72,19 +72,19 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, AccountDto> i
      * @param address 请求IP地址
      * @return 操作结果，null表示正常，否则为错误原因
      */
-    public String registerEmailVerifyCode(String type, String email, String address){
-        synchronized (address.intern()) {
-            if(!this.verifyLimit(address))
-                return "请求频繁，请稍后再试";
-            Random random = new Random();
-            int code = random.nextInt(899999) + 100000;
-            Map<String, Object> data = Map.of("type",type,"email", email, "code", code);
-            rabbitTemplate.convertAndSend(Const.MQ_MAIL, data);
-            stringRedisTemplate.opsForValue()
-                    .set(Const.VERIFY_EMAIL_DATA + email, String.valueOf(code), 3, TimeUnit.MINUTES);
-            return null;
-        }
-    }
+//    public String registerEmailVerifyCode(String type, String email, String address){
+//        synchronized (address.intern()) {
+//            if(!this.verifyLimit(address))
+//                return "请求频繁，请稍后再试";
+//            Random random = new Random();
+//            int code = random.nextInt(899999) + 100000;
+//            Map<String, Object> data = Map.of("type",type,"email", email, "code", code);
+//            rabbitTemplate.convertAndSend(Const.MQ_MAIL, data);
+//            stringRedisTemplate.opsForValue()
+//                    .set(Const.VERIFY_EMAIL_DATA + email, String.valueOf(code), 3, TimeUnit.MINUTES);
+//            return null;
+//        }
+//    }
 
     /**
      * 邮件验证码注册账号操作，需要检查验证码是否正确以及邮箱、用户名是否存在重名
