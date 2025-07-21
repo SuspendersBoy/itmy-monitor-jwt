@@ -61,10 +61,12 @@ public class ClientDetailServiceImpl extends ServiceImpl<BaseDetailMapper, BaseD
                      BeanUtils.copyProperties(runtime, vo);
                     //获得存放时间戳
                     long time = runtime.getTimestamp();
-                    if (System.currentTimeMillis() - time < 60000) {
+                    if (System.currentTimeMillis() - time < 45000) {
                         vo.setOnline(true);
+                    }else {
+                        vo.setOnline(false);
                     }
-                    vo.setOnline(false);
+
                     return vo;
                 }
         ).toList();

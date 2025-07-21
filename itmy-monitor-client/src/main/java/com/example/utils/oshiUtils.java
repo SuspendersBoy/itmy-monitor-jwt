@@ -8,6 +8,8 @@ import oshi.SystemInfo;
 import oshi.hardware.*;
 import oshi.software.os.*;
 import java.io.File;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Arrays;
@@ -21,7 +23,7 @@ public class oshiUtils {
     OperatingSystem os = systemInfo.getOperatingSystem();
 
     /**
-     * 1. 硬件信息（系统 CPU、内存、磁盘、显卡）
+     * 1. 硬件信息（系统 CPU、内存、磁盘）
      */
     public BaseDetail printHardwareInfo() {
         System.out.println("=== 硬件配置信息 ===");
@@ -46,18 +48,30 @@ public class oshiUtils {
                 return null;
             }
 
-        }
-        try {
+        }// 内存总量（GB），保留两位小数
+        double memoryGb = BigDecimal.valueOf((double) hardware.getMemory().getTotal() / Math.pow(1024.0, 3))
+                .setScale(2, RoundingMode.HALF_UP)
+                .doubleValue();
 
-            baseDetail.setOsArch(System.getProperty("os.arch"))
-                    .setOsName(System.getProperty("os.name"))
-                    .setOsVersion(System.getProperty("os.version"))
-                    .setOsBit(os.getBitness())
-                    .setCpuName(hardware.getProcessor().getProcessorIdentifier().getName())
-                    .setCpuCore(hardware.getProcessor().getLogicalProcessorCount())
-                    .setMemory((double) hardware.getMemory().getTotal() / Math.pow(1024.0, 3))
-                    .setDisk(Arrays.stream(File.listRoots()).mapToLong(File::getTotalSpace).sum() / Math.pow(1024.0, 3))
-                    .setIp(ip.getIPv4addr()[0]);
+// 磁盘总量（GB），保留两位小数
+        double diskGb = BigDecimal.valueOf(Arrays.stream(File.listRoots())
+                        .mapToLong(File::getTotalSpace)
+                        .sum() / Math.pow(1024.0, 3))
+                .setScale(2, RoundingMode.HALF_UP)
+                .doubleValue();
+
+        try {
+            if (ip != null) {
+                baseDetail.setOsArch(System.getProperty("os.arch"))
+                        .setOsName(System.getProperty("os.name"))
+                        .setOsVersion(System.getProperty("os.version"))
+                        .setOsBit(os.getBitness())
+                        .setCpuName(hardware.getProcessor().getProcessorIdentifier().getName())
+                        .setCpuCore(hardware.getProcessor().getLogicalProcessorCount())
+                        .setMemory(memoryGb)
+                        .setDisk(diskGb)
+                        .setIp(ip.getIPv4addr()[0]);
+            }
         } catch (Exception e) {
             return null;
         }
@@ -66,6 +80,10 @@ public class oshiUtils {
         return baseDetail;
     }
 
+    /**
+     * 获取实时数据
+     * @return
+     */
     public RuntimeDetail getRuntimeDetail() {
         RuntimeDetail detail = new RuntimeDetail();
         try {
@@ -76,24 +94,52 @@ public class oshiUtils {
 
             // 1. CPU 使用率（系统总体）
             CentralProcessor processor = hardware.getProcessor();
-            // 第一次获取 ticks
+
+// 采样次数和间隔（毫秒）
+            int samples = 2;
+            int interval = 500;
+
+// 多次采样计算平均值
+            double totalCpuUsage = 0;
             long[] prevTicks = processor.getSystemCpuLoadTicks();
-            try {
-                // 等待 100 毫秒，给 CPU 产生 ticks 变化的时间
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
+
+            for (int i = 0; i < samples; i++) {
+                try {
+                    Thread.sleep(interval);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+
+                long[] currentTicks = processor.getSystemCpuLoadTicks();
+                double cpuLoad = processor.getSystemCpuLoadBetweenTicks(prevTicks);
+
+                // 过滤无效值（首次调用可能返回 -1.0）
+                if (cpuLoad >= 0) {
+                    totalCpuUsage += cpuLoad;
+                }
+
+                prevTicks = currentTicks;
             }
-            // 第二次基于间隔后的 ticks 计算使用率
-            double cpuUsage = processor.getSystemCpuLoadBetweenTicks(prevTicks) * 100;
-            detail.setCpuUsage(cpuUsage);
 
-            // 2. 内存使用率
+// 计算平均 CPU 使用率并转为百分比
+            double avgCpuUsage = (totalCpuUsage / samples) * 100;
+
+// 保留两位小数
+            avgCpuUsage = BigDecimal.valueOf(avgCpuUsage)
+                    .setScale(2, RoundingMode.HALF_UP)
+                    .doubleValue();
+
+            detail.setCpuUsage(avgCpuUsage);
+
+            // 2. 内存使用量（GB）
             GlobalMemory memory = hardware.getMemory();
-            double memoryUsage = ((double) (memory.getTotal() - memory.getAvailable()) / memory.getTotal()) * 100;
-            detail.setMemoryUsage(memoryUsage);
+            double memoryUsed = (memory.getTotal() - memory.getAvailable()) / Math.pow(1024.0, 3);
+            memoryUsed = BigDecimal.valueOf(memoryUsed)
+                    .setScale(2, RoundingMode.HALF_UP)
+                    .doubleValue();
+            detail.setMemoryUsage(memoryUsed); // 假设存在 setMemoryUsed 方法
 
-            // 3. 磁盘使用率（取所有非虚拟磁盘的总使用率）
             // 3. 磁盘使用率（取所有非虚拟磁盘的总使用率）
             double totalDiskUsed = 0;
             double totalDiskSize = 0;
@@ -111,27 +157,68 @@ public class oshiUtils {
                 }
             }
             double diskUsage = (totalDiskSize > 0) ? (totalDiskUsed / totalDiskSize) * 100 : 0;
+            diskUsage = BigDecimal.valueOf(diskUsage)
+                    .setScale(2, RoundingMode.HALF_UP)
+                    .doubleValue();
             detail.setDiskUsage(diskUsage);
 
-            // 4. 网络上下行流量（取所有网络接口的总和）
-            long networkUpload = 0;
-            long networkDownload = 0;
+// 4. 网络上下行流量（单位：KB/s）
+            long initialUpload = 0;
+            long initialDownload = 0;
+
+// 首次采样
             for (NetworkIF net : hardware.getNetworkIFs()) {
-                net.updateAttributes(); // 更新网络接口统计信息
-                networkUpload += net.getBytesSent();
-                networkDownload += net.getBytesRecv();
+                net.updateAttributes();
+                initialUpload += net.getBytesSent();
+                initialDownload += net.getBytesRecv();
             }
-            detail.setNetworkUpload(networkUpload);
-            detail.setNetworkDownload(networkDownload);
+
+// 等待1秒，获取流量变化
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+
+            long finalUpload = 0;
+            long finalDownload = 0;
+
+// 再次采样
+            for (NetworkIF net : hardware.getNetworkIFs()) {
+                net.updateAttributes();
+                finalUpload += net.getBytesSent();
+                finalDownload += net.getBytesRecv();
+            }
+
+// 计算1秒内的流量变化（KB/s）
+            double uploadSpeed = (finalUpload - initialUpload) / 1024.0;
+            double downloadSpeed = (finalDownload - initialDownload) / 1024.0;
+
+// 保留两位小数
+            uploadSpeed = BigDecimal.valueOf(uploadSpeed)
+                    .setScale(2, RoundingMode.HALF_UP)
+                    .doubleValue();
+            downloadSpeed = BigDecimal.valueOf(downloadSpeed)
+                    .setScale(2, RoundingMode.HALF_UP)
+                    .doubleValue();
+
+            detail.setNetworkUpload(uploadSpeed);  // 单位：KB/s
+            detail.setNetworkDownload(downloadSpeed);  // 单位：KB/s
 
             // 5. 磁盘读写（取所有磁盘的总和）
-            long diskRead = 0;
-            long diskWrite = 0;
+            double diskRead = 0;
+            double diskWrite = 0;
             for (HWDiskStore disk : hardware.getDiskStores()) {
                 disk.updateAttributes(); // 更新磁盘统计信息
                 diskRead += disk.getReadBytes();
                 diskWrite += disk.getWriteBytes();
             }
+            diskRead = BigDecimal.valueOf(diskRead)
+                    .setScale(2, RoundingMode.HALF_UP)
+                    .doubleValue();
+            diskWrite = BigDecimal.valueOf(diskWrite)
+                    .setScale(2, RoundingMode.HALF_UP)
+                    .doubleValue();
             detail.setDiskRead(diskRead);
             detail.setDiskWrite(diskWrite);
 

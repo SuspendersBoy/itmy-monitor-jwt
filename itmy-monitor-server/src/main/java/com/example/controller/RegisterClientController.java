@@ -26,7 +26,6 @@ public class RegisterClientController {
      */
     @GetMapping("addClient")
     public RestBean<String> addClientToRegister(@RequestHeader(value = "Authorization", required = false) String token) {
-        System.out.println("我被调用啦");
         if (token == null) return RestBean.unauthorized("请求参数为空");
         String id=clientRegisterService.addClientToRegister(token);
         return id!=null ? RestBean.success(id) : RestBean.failure(401, "注册失败,请检查token");
@@ -53,7 +52,7 @@ public class RegisterClientController {
     /**
      * 注册服务器实时信息
      * @param clientId 服务器id
-     * @param runtimeDetailVO 试试信息
+     * @param runtimeDetailVO 服务器信息
      * @return
      */
     @PostMapping("runtime")

@@ -5,8 +5,8 @@ import {get} from "@/net";
 
 const list=ref([])
 const upDateList = () => get('/api/monitor/list',data => list.value=data)
-setInterval(upDateList,10000)
-
+setInterval(upDateList,5000)
+upDateList()
 </script>
 
 <template>
@@ -17,12 +17,7 @@ setInterval(upDateList,10000)
     </div>
     <el-divider style="margin: 10px 0"/>
     <div class="list-card">
-      <Client/>
-      <Client/>
-      <Client/>
-      <Client/>
-      <Client/>
-      <Client/>
+      <Client v-for="item in list"  :data="item"/>
     </div>
   </div>
 </template>
