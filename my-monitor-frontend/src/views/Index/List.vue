@@ -9,7 +9,10 @@ const list=ref([])
 const details=reactive({
   detail:{}
 })
-const upDateList = () => get('/api/monitor/list',data => list.value=data)
+const upDateList = () => {
+  get('/api/monitor/list',data => list.value=data)
+
+}
 setInterval(upDateList,5000)
 upDateList()
 
@@ -68,6 +71,10 @@ const addClient = () => {
       </el-drawer>
     </div>
     <div class="Register">
+      <div class="hint" v-if="list.length<=0">
+       请添加主机
+        <i class="fa-solid fa-cart-arrow-down"></i>
+      </div>
       <el-drawer  size="430px" v-model="drawer" title="添加主机事例说明" :direction="'btt'" style="width: 1200px ; margin: 0 auto">
         <RegisterCard :token="T.Token" v-if="T.Token"/>
       </el-drawer>
@@ -76,6 +83,21 @@ const addClient = () => {
 </template>
 
 <style scoped>
+.hint{
+  position: fixed;
+
+  top: 300px;
+  right: 450px;
+  font-family: "Lucida Console", "Courier New", Cursive;
+  opacity: 0.3;
+  font-size: 64px;
+}
+.fa-cart-arrow-down{
+  margin-top: 40px;
+  width: 100%;
+  font-size: 300px;
+  opacity: 0.3;
+}
 .addClient{
   display: flex;
   align-items: center;

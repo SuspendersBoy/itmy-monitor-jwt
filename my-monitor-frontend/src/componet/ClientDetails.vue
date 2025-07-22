@@ -64,7 +64,6 @@ const deleteClient = async () => {
   text-align: center;
 }
 
-
 .titles {
   margin-bottom: 30px;
 }
