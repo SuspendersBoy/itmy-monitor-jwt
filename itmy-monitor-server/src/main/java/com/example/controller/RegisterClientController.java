@@ -4,11 +4,14 @@ import com.example.entity.RestBean;
 import com.example.entity.dto.BaseDetailDto;
 import com.example.entity.vo.request.BaseDetailVO;
 import com.example.entity.vo.request.RuntimeDetailVO;
+import com.example.entity.vo.response.fluxClient;
 import com.example.service.ClientDetailService;
 import com.example.service.ClientRegisterService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("client")
@@ -62,5 +65,13 @@ public class RegisterClientController {
         //封装dto信息
         clientDetailService.runtime(clientId,runtimeDetailVO);
             return RestBean.success();
+    }
+    @GetMapping("getRuntimeById")
+    public RestBean<RuntimeDetailVO> getRuntimeById(String id){
+       return clientDetailService.getRuntimeById(id);
+    }
+    @GetMapping("flux")
+    public RestBean<List<fluxClient>> flux(String id){
+        return clientDetailService.flux(id);
     }
 }

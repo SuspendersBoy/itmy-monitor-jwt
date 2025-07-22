@@ -2,9 +2,11 @@ package com.example.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
+import com.example.entity.RestBean;
 import com.example.entity.dto.BaseDetailDto;
 import com.example.entity.vo.request.RuntimeDetailVO;
 import com.example.entity.vo.response.ClientPreviewVO;
+import com.example.entity.vo.response.fluxClient;
 import com.example.mapper.BaseDetailMapper;
 import com.example.service.ClientDetailService;
 import com.example.utils.InfluxDbUtils;
@@ -44,6 +46,18 @@ public class ClientDetailServiceImpl extends ServiceImpl<BaseDetailMapper, BaseD
         influxDbUtils.writRuntimeData(clientId,runtimeDetailVO);
 
     }
+//
+    @Override
+    public RestBean<RuntimeDetailVO> getRuntimeById(String id) {
+        RuntimeDetailVO r=runtimeData.get(id);
+        r.setClientId(id);
+        return RestBean.success(r);
+    }
+
+    @Override
+    public RestBean<List<fluxClient>> flux(String id) {
+        return RestBean.success(influxDbUtils.getRuntimeDataById(id));
+    }
 
     /**
      * 返回服务器所有信息
@@ -66,7 +80,8 @@ public class ClientDetailServiceImpl extends ServiceImpl<BaseDetailMapper, BaseD
                     }else {
                         vo.setOnline(false);
                     }
-
+                    //封装 clientId
+                     vo.setClientId(baseDetailDto.getClientId());
                     return vo;
                 }
         ).toList();

@@ -7,6 +7,7 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 public class RuntimeDetailVO {
+    private String  clientId;
     private long timestamp;
     private double cpuUsage;
     private double memoryUsage;

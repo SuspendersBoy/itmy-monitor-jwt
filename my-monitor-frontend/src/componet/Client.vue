@@ -1,5 +1,6 @@
 <script setup>
 import {useClipboard} from "@vueuse/core";
+import {reactive} from "vue";
 
 const props= defineProps({
   data: Object
@@ -94,6 +95,13 @@ const copyIp = () => {
   font-size: 12px;
 }
 .instance-card {
+  transition: .3s;
+  &:hover {
+    cursor: pointer;
+    scale: 1.05;
+    opacity: 0.8;
+    border: 1px dotted #37a8ff;
+  }
   width: 320px;
   padding: 15px;
   background-color: var(--el-bg-color);
@@ -108,6 +116,5 @@ const copyIp = () => {
   .status {
     font-size: 12px;
   }
-
 }
 </style>
