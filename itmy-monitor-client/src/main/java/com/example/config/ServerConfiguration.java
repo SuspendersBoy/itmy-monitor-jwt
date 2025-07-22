@@ -45,7 +45,7 @@ public class ServerConfiguration {
             //由于是控制台输入,默认请求成功!不成功会一直循环控制台输入
             getConnectionInformation();
         }else {
-            log.error("读取配置文件成功");
+            log.info("读取配置文件成功");
             //配置文件不为空
             getConnectionInformation(connectionConfig);
         }

@@ -1,6 +1,7 @@
 package com.example.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.example.entity.RestBean;
 import com.example.entity.dto.ClientRegisterDto;
 import com.example.mapper.ClientRegisterMapper;
 import com.example.service.ClientRegisterService;
@@ -46,8 +47,7 @@ public class ClientRegisterServiceImpl extends ServiceImpl<ClientRegisterMapper,
             if (this.save(clientRegisterDto)) {
                 //更新 map 存储的客户端(虚拟机)信息
                 this.addClientRegister(clientRegisterDto);
-                String id=clientRegisterDto.getId();
-                return id;
+                return clientRegisterDto.getId();
             }
         }
         return null;
@@ -74,6 +74,12 @@ public class ClientRegisterServiceImpl extends ServiceImpl<ClientRegisterMapper,
     public ClientRegisterDto getClientRegisterByToken(String token) {
         return tokenClient.get(token);
     }
+
+    @Override
+    public RestBean<String> getToken() {
+        return RestBean.success(random);
+    }
+
 
 
     /**

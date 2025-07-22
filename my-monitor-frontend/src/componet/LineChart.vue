@@ -11,10 +11,7 @@
 
   // 接收外部传入的数据
   const props = defineProps({
-    data: {
-      type: Array,
-      default: () => []
-    },
+    data: []
   });
 
   // 格式化数据

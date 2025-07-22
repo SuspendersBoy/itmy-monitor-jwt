@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -24,6 +25,19 @@ public class ClientDetailServiceImpl extends ServiceImpl<BaseDetailMapper, BaseD
     List<BaseDetailDto> clientDetails=new ArrayList<>();//服务器配置信息
     @Autowired
     InfluxDbUtils influxDbUtils;
+
+    @Override
+    public void deleteClient(String id) {
+        runtimeData.remove(id);
+        Iterator<BaseDetailDto> iterator=clientDetails.iterator();
+        while (iterator.hasNext()) {
+            BaseDetailDto baseDetailDto=iterator.next();
+            if(baseDetailDto.getClientId().equals(id)){
+                clientDetails.remove(baseDetailDto);
+            }
+        }
+    }
+
 
     /**
      * 添加服务器配置信息
@@ -46,7 +60,7 @@ public class ClientDetailServiceImpl extends ServiceImpl<BaseDetailMapper, BaseD
         influxDbUtils.writRuntimeData(clientId,runtimeDetailVO);
 
     }
-//
+
     @Override
     public RestBean<RuntimeDetailVO> getRuntimeById(String id) {
         RuntimeDetailVO r=runtimeData.get(id);

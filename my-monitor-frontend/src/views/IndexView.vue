@@ -13,16 +13,18 @@ import {useRoute,useRouter} from "vue-router";
 function userLogout() {
   logout(() => router.push("/"))
 }
+
 const tabs=[
   {id: 1,name: '服务器列',route:'List'},
   {id: 2,name: '账户管理',route:'Manage'}
 ]
 
 const route= useRoute();
+
 const rou=useRouter();
+
 const index = ()=>{
   for (let tab of tabs) {
-    console.log(route.name)
     if(route.name === tab.route){
       return tab.id
     }

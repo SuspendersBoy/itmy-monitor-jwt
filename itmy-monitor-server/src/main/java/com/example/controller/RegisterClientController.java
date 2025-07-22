@@ -74,4 +74,16 @@ public class RegisterClientController {
     public RestBean<List<fluxClient>> flux(String id){
         return clientDetailService.flux(id);
     }
+    @GetMapping("getToken")
+    public RestBean<String> getToken(){
+        return  clientRegisterService.getToken();
+    }
+    @DeleteMapping("deleteClient")
+    public RestBean deleteClient(String id){
+        if (id==null){
+            return RestBean.forbidden("删除失败请检查");
+        }
+        clientDetailService.deleteClient(id);
+        return RestBean.success();
+    }
 }

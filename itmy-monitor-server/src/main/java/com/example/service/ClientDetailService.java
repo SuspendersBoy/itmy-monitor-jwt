@@ -17,4 +17,6 @@ public interface ClientDetailService extends IService<BaseDetailDto> {
     RestBean<RuntimeDetailVO> getRuntimeById(String id);
 
     RestBean<List<fluxClient>> flux(String id);
+
+    void deleteClient(String id);
 }

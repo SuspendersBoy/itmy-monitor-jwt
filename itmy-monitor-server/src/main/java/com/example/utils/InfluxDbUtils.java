@@ -51,7 +51,7 @@ public class InfluxDbUtils {
     public List<fluxClient> getRuntimeDataById(String clientId) {
         // Flux 查询语句，从指定 bucket 和 org 中查询数据，过滤条件为 id 等于 clientId
         String fluxQuery = String.format("from(bucket: \"%s\") " +
-                        "|> range(start: -8h) " + // 查询最近 1 分钟的数据
+                        "|> range(start: -2h) " + // 查询最近 1 分钟的数据
                         "|> filter(fn: (r) => r._measurement == \"runtime\") " +
                         "|> filter(fn: (r) => r.id == \"%s\")",
                 bucket, clientId);
