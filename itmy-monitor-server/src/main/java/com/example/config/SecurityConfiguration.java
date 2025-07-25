@@ -56,7 +56,7 @@ public class SecurityConfiguration {
                         .requestMatchers("/api/auth/**", "/error").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/client/**").permitAll()
-                        .anyRequest().hasAnyRole(Const.ROLE_DEFAULT) //这里表示所有的请求 都得包含user角色
+                        .anyRequest().authenticated()
                 )
                 .formLogin(conf -> conf
                         .loginProcessingUrl("/api/auth/login")

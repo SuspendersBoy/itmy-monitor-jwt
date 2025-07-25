@@ -1,9 +1,10 @@
 <script setup>
 
+import ManageCar from "@/componet/manageCar.vue";
 </script>
 <template>
   <div>
-    你好!
+    <manageCar></manageCar>
   </div>
 </template>
 <style scoped>

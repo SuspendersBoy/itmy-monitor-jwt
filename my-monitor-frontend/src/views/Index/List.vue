@@ -5,13 +5,16 @@ import {get} from "@/net";
 import ClientDetails from "@/componet/ClientDetails.vue";
 import {Plus} from "@element-plus/icons-vue";
 import RegisterCard from "@/componet/RegisterCard.vue";
+import {useRoute} from "vue-router";
+const route= useRoute();
 const list=ref([])
 const details=reactive({
   detail:{}
 })
 const upDateList = () => {
-  get('/api/monitor/list',data => list.value=data)
-
+  if(route.name==='List'){
+    get('/api/monitor/list',data => list.value=data)
+  }
 }
 setInterval(upDateList,5000)
 upDateList()
@@ -24,18 +27,18 @@ const detail = reactive({
 const T = reactive({
   Token: null
 });
-// 携带参数示例，假设需要传递 id
+
 const clientItem = (id) => {
   const paramUrl = `/client/getRuntimeById?id=${id}`;
   get(paramUrl, data => Object.assign(details.detail,data));
 };
 
-// 携带参数示例，假设需要传递 id
+
 const getToken = () => {
   const paramUrl = `/client/getToken`;
   get(paramUrl, data => T.Token=data);
 };
-// 定义方法，用于触发抽屉显示并设置 id
+
 const displayClientDetails = (id) => {
   detail.show = true;// 显示抽屉
   clientItem(id)
@@ -48,6 +51,8 @@ const addClient = () => {
     getToken()
   }
 }
+
+
 </script>
 
 <template>

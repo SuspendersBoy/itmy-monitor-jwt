@@ -4,6 +4,8 @@ import {ref} from 'vue';
 import LineChart from "@/componet/LineChart.vue";
 import { ElMessageBox } from 'element-plus'
 import axios from "axios";
+import {useRoute} from "vue-router";
+const route= useRoute();
 const props = defineProps({
   data: Object
 })
@@ -11,9 +13,10 @@ const props = defineProps({
 
 const chartData = ref([]);
 const clientItem = () => {
-  const paramUrl = `/client/flux?id=${props.data.clientId}`
-  get(paramUrl, data => chartData.value = data)
-  console.log(chartData.value)
+  if(route.name==='List') {
+    const paramUrl = `/client/flux?id=${props.data.clientId}`
+    get(paramUrl, data => chartData.value = data)
+  }
 }
 setInterval(clientItem, 5000)
 // 示例数据
@@ -29,6 +32,9 @@ const deleteClient = async () => {
 <template>
   <div class="titles">
     <div class="title-monitor">历史数据</div>
+    <el-button plain @click="dialogVisible = true"  style="color: #ffffff ">
+      删除主机
+    </el-button>
     <el-divider style="margin: 15px 0"/>
     <el-progress type="dashboard" :width="100" :percentage="data.diskUsage" status="success">
       <div style="font-size: 12px;font-weight: bold;color: initial">储存使用率</div>
@@ -41,9 +47,6 @@ const deleteClient = async () => {
     </div>
 
     <div>
-      <el-button plain @click="dialogVisible = true"  >
-        删除主机
-      </el-button>
       <el-dialog v-model="dialogVisible" title="你确定删除主机吗?"  width="400" :before-close="handleClose">
         <span>请做好你的选择!</span>
         <span>主机id{{props.data.clientId}}</span>

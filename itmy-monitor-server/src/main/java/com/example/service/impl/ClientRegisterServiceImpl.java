@@ -6,6 +6,7 @@ import com.example.entity.dto.ClientRegisterDto;
 import com.example.mapper.ClientRegisterMapper;
 import com.example.service.ClientRegisterService;
 import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import java.security.SecureRandom;
 import java.util.Date;
@@ -14,8 +15,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class ClientRegisterServiceImpl extends ServiceImpl<ClientRegisterMapper, ClientRegisterDto> implements ClientRegisterService {
-    //生成token
-    private String random = generateNewToken();
+    //不随机生成了
+    @Value("${token}")
+    private String random;
     //根据id 存储所有的虚拟机信息
     private Map<String, ClientRegisterDto> idClient = new ConcurrentHashMap<>();
     //根据token 存储所有的虚拟机信息
@@ -43,6 +45,7 @@ public class ClientRegisterServiceImpl extends ServiceImpl<ClientRegisterMapper,
             ClientRegisterDto clientRegisterDto = new ClientRegisterDto();
             clientRegisterDto.setToken(token);
             clientRegisterDto.setRegisterTime(new Date());
+            clientRegisterDto.setName("究极宇宙无敌原子核能服务器");
             //插入数据
             if (this.save(clientRegisterDto)) {
                 //更新 map 存储的客户端(虚拟机)信息

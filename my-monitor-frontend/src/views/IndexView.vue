@@ -1,5 +1,5 @@
 <script setup>
-import {computed, ref} from "vue";
+import { ref} from "vue";
 
 const dark = ref(useDark())
 
@@ -73,7 +73,9 @@ function changePage(item){
 
       <router-view v-slot="{ Component }">
         <transition name="el-fade-in-linear" mode="out-in">
-          <component :is="Component"/>
+         <keep-alive>
+           <component :is="Component"/>
+         </keep-alive>
         </transition>
       </router-view>
 

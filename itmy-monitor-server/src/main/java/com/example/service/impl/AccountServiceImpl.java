@@ -3,15 +3,14 @@ package com.example.service.impl;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.entity.dto.AccountDto;
-import com.example.entity.vo.request.ConfirmResetVO;
-import com.example.entity.vo.request.EmailRegisterVO;
-import com.example.entity.vo.request.EmailResetVO;
+import com.example.entity.dto.ChildDto;
+import com.example.entity.vo.request.*;
 import com.example.mapper.AccountMapper;
 import com.example.service.AccountService;
 import com.example.utils.Const;
 import com.example.utils.FlowUtils;
 import jakarta.annotation.Resource;
-//import org.springframework.amqp.core.AmqpTemplate;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.core.userdetails.User;
@@ -19,12 +18,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.util.Date;
-import java.util.Map;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
-
 /**
  * 账户信息处理相关服务
  */
@@ -34,9 +28,6 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, AccountDto> i
     //验证邮件发送冷却时间限制，秒为单位
     @Value("${spring.web.verify.mail-limit}")
     int verifyLimit;
-
-//    @Resource
-//    AmqpTemplate rabbitTemplate;
 
     @Resource
     StringRedisTemplate stringRedisTemplate;
@@ -141,6 +132,18 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, AccountDto> i
         if(!code.equals(info.getCode())) return "验证码错误，请重新输入";
         return null;
     }
+
+    @Override
+    public Boolean changePassword(ChangePassword changePassword, int id) {
+        AccountDto accountDto=this.getById(id);
+       if(passwordEncoder.matches(accountDto.getPassword(),changePassword.getPassword())){
+           return false;
+       }
+       String Password=passwordEncoder.encode(changePassword.getNew_password());
+       this.update(Wrappers.<AccountDto>update().eq("id",id).set("password",Password));
+       return true;
+    }
+
 
     /**
      * 移除Redis中存储的邮件验证码

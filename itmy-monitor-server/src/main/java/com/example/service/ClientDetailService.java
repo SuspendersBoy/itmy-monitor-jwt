@@ -19,4 +19,6 @@ public interface ClientDetailService extends IService<BaseDetailDto> {
     RestBean<List<fluxClient>> flux(String id);
 
     void deleteClient(String id);
+
+    List<ClientPreviewVO> listAllUserClient(String id);
 }
