@@ -1,8 +1,4 @@
-<template>
-  <div ref="chartRef" class="chart-container" style="width: 500px; height: 350px;"></div>
-</template>
-
-  <script setup>
+<script setup>
   import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
   import * as echarts from 'echarts';
 
@@ -113,6 +109,10 @@
     updateChart();
   });
 </script>
+
+<template>
+  <div ref="chartRef" class="chart-container" style="width: 500px; height: 350px;"></div>
+</template>
 
 <style scoped>
 </style>

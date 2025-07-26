@@ -78,6 +78,10 @@ public class ClientRegisterServiceImpl extends ServiceImpl<ClientRegisterMapper,
         return tokenClient.get(token);
     }
 
+    /**
+     * 获取用于注册服务器的 token
+     * @return token
+     */
     @Override
     public RestBean<String> getToken() {
         return RestBean.success(random);
@@ -97,7 +101,6 @@ public class ClientRegisterServiceImpl extends ServiceImpl<ClientRegisterMapper,
 
     /**
      * 生成token
-     *
      * @return 返回一个随机生成的 token
      */
     private String generateNewToken() {

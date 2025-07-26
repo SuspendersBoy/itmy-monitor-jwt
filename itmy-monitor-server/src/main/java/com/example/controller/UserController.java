@@ -25,35 +25,41 @@ public class UserController {
     AccountService accountService;
     @Autowired
     AccountSubService accountSubService;
+
+    //修改密码
     @PostMapping("change-password")
-    public RestBean<Void> post(@RequestBody ChangePassword changePassword, @RequestAttribute(Const.ATTR_USER_ID)int id) {
-        Boolean b=accountService.changePassword(changePassword,id);
-        return b ? RestBean.success() : RestBean.failure(401,"原密码错误");
+    public RestBean<Void> post(@RequestBody ChangePassword changePassword, @RequestAttribute(Const.ATTR_USER_ID) int id) {
+        Boolean b = accountService.changePassword(changePassword, id);
+        return b ? RestBean.success() : RestBean.failure(401, "原密码错误");
     }
+
+    //添加子账户
     @PostMapping("add-sub-account")
-    public RestBean<Void>  addSubAccount(@RequestBody ChildVO childVO , @RequestAttribute(Const.ATTR_USER_ID)String id) {
+    public RestBean<Void> addSubAccount(@RequestBody ChildVO childVO, @RequestAttribute(Const.ATTR_USER_ID) String id) {
         // 获取当前认证的用户对象
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Collection<? extends GrantedAuthority> authorities =authentication.getAuthorities();
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         for (GrantedAuthority authority : authorities) {
-           if (authority.getAuthority().equals("ROLE_user")){
-               return RestBean.forbidden("权限不足");
-           }
-        }
-        accountSubService.addSubAccount(childVO,id);
-        return RestBean.success();
-    }
-    @GetMapping("select-sub-account")
-    public RestBean<List<ChildDto>> selectSubAccount( ) {
-        // 获取当前认证的用户对象
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Collection<? extends GrantedAuthority> authorities =authentication.getAuthorities();
-        for (GrantedAuthority authority : authorities) {
-            if (authority.getAuthority().equals("ROLE_user")){
+            if (authority.getAuthority().equals("ROLE_user")) {
                 return RestBean.forbidden("权限不足");
             }
         }
-         List<ChildDto> list= accountSubService.selectSubAccount();
+        accountSubService.addSubAccount(childVO, id);
+        return RestBean.success();
+    }
+
+    //查询子账户
+    @GetMapping("select-sub-account")
+    public RestBean<List<ChildDto>> selectSubAccount() {
+        // 获取当前认证的用户对象
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        for (GrantedAuthority authority : authorities) {
+            if (authority.getAuthority().equals("ROLE_user")) {
+                return RestBean.forbidden("权限不足");
+            }
+        }
+        List<ChildDto> list = accountSubService.selectSubAccount();
         return RestBean.success(list);
     }
 }

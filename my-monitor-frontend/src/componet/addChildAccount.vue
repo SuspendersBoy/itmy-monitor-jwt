@@ -1,13 +1,22 @@
 <script  setup>
 import { reactive, ref } from 'vue'
-
 import {get, post} from "@/net";
 import {ElMessage} from "element-plus";
-import Child from "@/componet/child.vue";
 const list = ref([]);
 const ruleFormRef = ref()
 let show=ref(false)
 const childAccount=ref([])
+const ruleForm = reactive({
+  client:'',
+  username: '',
+  password: '',
+})
+
+const rules = reactive({
+  username: [{ validator: validatePass2, trigger: 'blur' }],
+  password: [{ validator: validatePass, trigger: 'blur' }]
+})
+
 const onSubmit = (ruleFormRef) => {
   post("/user/add-sub-account",ruleFormRef,()=>{
       ElMessage.success("添加成功")
@@ -15,6 +24,7 @@ const onSubmit = (ruleFormRef) => {
     ElMessage.error("添加用户失败->权限不足")
   })
 }
+
 const validatePass = (rule,value,callback) => {
   if (value === '') {
     show.value=true
@@ -27,6 +37,7 @@ const validatePass = (rule,value,callback) => {
     callback()
   }
 }
+
 const validatePass2 = (rule, value,callback) => {
   if (value === '') {
     show.value=true
@@ -39,17 +50,6 @@ const validatePass2 = (rule, value,callback) => {
     callback()
   }
 }
-
-const ruleForm = reactive({
-  client:'',
-  username: '',
-  password: '',
-})
-
-const rules = reactive({
-  username: [{ validator: validatePass2, trigger: 'blur' }],
-  password: [{ validator: validatePass, trigger: 'blur' }]
-})
 
 const upDateList = () => {
   get('/api/monitor/list',data => childAccount.value=data)

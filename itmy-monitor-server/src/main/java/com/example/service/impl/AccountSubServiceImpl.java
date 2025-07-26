@@ -22,6 +22,11 @@ public class AccountSubServiceImpl extends ServiceImpl<AccountSubMapper, ChildDt
     @Autowired
     PasswordEncoder passwordEncoder;
     @Override
+    /**
+     * @childvo 子账户注册信息
+     * @id 注册子账户的id
+     * @return 是否成功
+     */
     public Boolean addSubAccount(ChildVO childVO, String id) {
         ChildDto childDto=new ChildDto();
         BeanUtils.copyProperties(childVO,childDto);
@@ -38,6 +43,10 @@ public class AccountSubServiceImpl extends ServiceImpl<AccountSubMapper, ChildDt
         return true;
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public List<ChildDto> selectSubAccount() {
         return this.list();

@@ -6,10 +6,10 @@ import { ElMessageBox } from 'element-plus'
 import axios from "axios";
 import {useRoute} from "vue-router";
 const route= useRoute();
+const dialogVisible = ref(false)
 const props = defineProps({
   data: Object
 })
-
 
 const chartData = ref([]);
 const clientItem = () => {
@@ -19,8 +19,6 @@ const clientItem = () => {
   }
 }
 setInterval(clientItem, 5000)
-// 示例数据
-const dialogVisible = ref(false)
 
 const deleteClient = async () => {
   const paramUrl = `/client/deleteClient?id=${props.data.clientId}`;

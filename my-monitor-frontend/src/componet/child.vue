@@ -2,7 +2,6 @@
 const props=defineProps({
   data:{}
 });
-console.log(props.data)
 </script>
 <template>
 

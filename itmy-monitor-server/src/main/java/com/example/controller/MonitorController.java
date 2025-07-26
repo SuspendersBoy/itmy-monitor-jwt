@@ -18,6 +18,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 @RestController
 @RequestMapping("api/monitor")
@@ -25,17 +26,23 @@ public class MonitorController {
     @Autowired
     ClientDetailService clientDetailService;
 
+    /**
+     * 列出用户所有权限的服务器
+     * @param id
+     * @return
+     */
     @GetMapping("list")
     public RestBean<List<ClientPreviewVO>> listAllClient(@RequestAttribute(Const.ATTR_USER_ID)String id){
-        // 获取当前认证的用户对象
+        // 获取当前认证的用户对象的权限
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Collection<? extends GrantedAuthority> authorities =authentication.getAuthorities();
-        List<String > s=authorities.stream().map((Function<GrantedAuthority, String>) grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_admin") ? "admin" :null).toList();
-        if (!s.isEmpty()&& s.stream().anyMatch(Objects::nonNull)){
+        List<? extends GrantedAuthority> s=authorities.stream().filter((Predicate<GrantedAuthority>) grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_admin") ? true :false).toList();
+        if (!s.isEmpty()){
             return RestBean.success(clientDetailService.listAllClient());
         }
         return RestBean.success(clientDetailService.listAllUserClient(id));
     }
+
     @PostMapping("ssh-save")
     public RestBean<Void> sshSave(@RequestBody @Valid SshConnectionVO sshConnectionVO){
         return RestBean.success();

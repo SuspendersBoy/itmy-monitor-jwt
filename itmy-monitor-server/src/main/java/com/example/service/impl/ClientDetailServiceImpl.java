@@ -29,7 +29,10 @@ public class ClientDetailServiceImpl extends ServiceImpl<BaseDetailMapper, BaseD
     InfluxDbUtils influxDbUtils;
     @Autowired
     AccountSubMapper accountSubMapper;
-        @Override
+    @Override
+    /**
+     * 根据服务器id删除 服务器
+     */
     public void deleteClient(String id) {
         runtimeData.remove(id);
         Iterator<BaseDetailDto> iterator=clientDetails.iterator();
@@ -40,44 +43,6 @@ public class ClientDetailServiceImpl extends ServiceImpl<BaseDetailMapper, BaseD
             }
         }
     }
-
-    @Override
-    public List<ClientPreviewVO> listAllUserClient(String id) {
-        ChildDto childDto =accountSubMapper.selectById(id);
-        List<ClientPreviewVO> vos=clientDetails.stream().map(baseDetailDto -> {
-                   ClientPreviewVO vo = new ClientPreviewVO();
-                   if(baseDetailDto.getClientId().equals(childDto.getClient())){
-                       //将服务器信息拷贝至 ClientPreviewVO
-                       BeanUtils.copyProperties(baseDetailDto, vo);
-                       //获得服务器实时数据
-                       RuntimeDetailVO runtime = runtimeData.get(baseDetailDto.getClientId());
-                       //将服务器实时信息拷贝至 ClientPreviewVO
-                       BeanUtils.copyProperties(runtime, vo);
-                       //获得存放时间戳
-                       long time = runtime.getTimestamp();
-                       if (System.currentTimeMillis() - time < 45000) {
-                           vo.setOnline(true);
-                       }else {
-                           vo.setOnline(false);
-                       }
-                       //封装 clientId
-                       vo.setClientId(baseDetailDto.getClientId());
-                       return vo;
-                   }
-                   return null;
-                }
-        ).toList();
-        List<ClientPreviewVO> list=new  ArrayList<>();
-        vos.stream().forEach(vo -> {
-            if(vo!=null){
-                list.add(vo);
-            }
-        });
-        //遍历所有注册的服务器
-        return  list;
-    }
-
-
 
     /**
      * 添加服务器配置信息
@@ -101,6 +66,11 @@ public class ClientDetailServiceImpl extends ServiceImpl<BaseDetailMapper, BaseD
 
     }
 
+    /**
+     * 查询 服务器 运行时数据
+     * @param id 服务器id
+     * @return 服务器运行数据
+     */
     @Override
     public RestBean<RuntimeDetailVO> getRuntimeById(String id) {
         RuntimeDetailVO r=runtimeData.get(id);
@@ -108,6 +78,11 @@ public class ClientDetailServiceImpl extends ServiceImpl<BaseDetailMapper, BaseD
         return RestBean.success(r);
     }
 
+    /**
+     *查询服务器运行时历 史数据
+     * @param id 服务器id
+     * @return 服务器运行时 历史数据
+     */
     @Override
     public RestBean<List<fluxClient>> flux(String id) {
         return RestBean.success(influxDbUtils.getRuntimeDataById(id));
@@ -142,6 +117,46 @@ public class ClientDetailServiceImpl extends ServiceImpl<BaseDetailMapper, BaseD
         //遍历所有注册的服务器
         return  vos;
     }
+    /**
+     * 返回user用户分配服务器所有信息
+     * @return 服务器所有信息集合
+     */
+    @Override
+    public List<ClientPreviewVO> listAllUserClient(String id) {
+        ChildDto childDto =accountSubMapper.selectById(id);
+        List<ClientPreviewVO> vos=clientDetails.stream().map(baseDetailDto -> {
+                    if(baseDetailDto.getClientId().equals(childDto.getClient())){
+                        ClientPreviewVO vo = new ClientPreviewVO();
+                        //将服务器信息拷贝至 ClientPreviewVO
+                        BeanUtils.copyProperties(baseDetailDto, vo);
+                        //获得服务器实时数据
+                        RuntimeDetailVO runtime = runtimeData.get(baseDetailDto.getClientId());
+                        //将服务器实时信息拷贝至 ClientPreviewVO
+                        BeanUtils.copyProperties(runtime, vo);
+                        //获得存放时间戳
+                        long time = runtime.getTimestamp();
+                        if (System.currentTimeMillis() - time < 45000) {
+                            vo.setOnline(true);
+                        }else {
+                            vo.setOnline(false);
+                        }
+                        //封装 clientId
+                        vo.setClientId(baseDetailDto.getClientId());
+                        return vo;
+                    }
+                    return null;
+                }
+        ).toList();
+        //除空
+        List<ClientPreviewVO> list=new  ArrayList<>();
+        vos.stream().forEach(vo -> {
+            if(vo!=null){
+                list.add(vo);
+            }
+        });
+        return  list;
+    }
+
 
 }
 

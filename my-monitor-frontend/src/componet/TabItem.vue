@@ -3,7 +3,6 @@ defineProps({
   name: String,
   active: Boolean
 })
-
 </script>
 
 <template>
