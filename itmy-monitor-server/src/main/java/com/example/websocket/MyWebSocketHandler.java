@@ -9,9 +9,7 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import java.io.BufferedReader;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
@@ -20,6 +18,8 @@ public class MyWebSocketHandler extends TextWebSocketHandler {
     @Autowired
     SshConnerction sshConnerction;
 
+
+    private ConcurrentHashMap<String, Session> sAnds = new ConcurrentHashMap<>();
     private ConcurrentHashMap<WebSocketSession, Session> wAnds = new ConcurrentHashMap<>();
     private ConcurrentHashMap<WebSocketSession, Channel>  wAndc= new ConcurrentHashMap<>();
     private ConcurrentHashMap<WebSocketSession, InputStream>  wAndb= new ConcurrentHashMap<>();

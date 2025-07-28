@@ -62,7 +62,6 @@ const handleFormUpdate = () => {
   get(`api/monitor/ssh?clientId=${clientId.value}`, ()=> {is.value=false, childRef.value?.childMethod()},()=>{is.value=true},()=>{is.value=true})
   detail.show=!detail.show
   shh.value=!shh.value
-
 }
 
 
@@ -102,7 +101,7 @@ const handleFormUpdate = () => {
     </div>
 
     <div>
-      <el-drawer v-model="shh" direction="btt" size="650px" close-on-click-modal=false title="ssh 连接">
+      <el-drawer :destroy-on-close="true" :close-on-click-modal="false" :close-on-press-escape="false" v-model="shh" direction="btt" size="650px" title="ssh 连接" modal-class="哎呦! 你干嘛">
         <shh-connetction  ref="childRef" :clientId="clientId" :is="is"/>
       </el-drawer>
     </div>

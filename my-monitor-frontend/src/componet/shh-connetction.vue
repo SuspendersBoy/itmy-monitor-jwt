@@ -1,7 +1,6 @@
 <script lang="ts" setup>
-import {onBeforeUnmount, onMounted, reactive, ref, watch} from 'vue'
+import {onBeforeUnmount, onMounted, reactive, ref} from 'vue'
 import {ElMessage, FormInstance, FormRules} from 'element-plus'
-import {AttachAddon} from "xterm-addon-attach/src/AttachAddon"
 import "xterm/css/xterm.css"
 const ruleFormRef = ref<FormInstance>()
 import {post} from "@/net";
@@ -79,7 +78,7 @@ const socket = new WebSocket(`ws://localhost:8080/websocket?id=${props.clientId}
 const term = new Terminal({
   lineHeight: 1.2,
   rows: 20,
-  fontSize: 13,
+  fontSize: 18,
   fontFamily: "Monaco, Menlo, Consolas, 'Courier New', monospace",
   fontWeight: "bold",
   theme: {
@@ -156,7 +155,10 @@ onMounted(() => {
     term.write(event.data);
   };
 });
-
+onBeforeUnmount(()=>{
+  socket.close()
+  term.dispose()
+})
 </script>
 
 <template>

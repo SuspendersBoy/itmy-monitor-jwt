@@ -2,7 +2,7 @@
 import child from "@/componet/child.vue"
 import {reactive, ref} from "vue";
 import {Lock, Switch} from '@element-plus/icons-vue'
-import {get, post} from "@/net";
+import {get, logout, post} from "@/net";
 import {ElMessage} from "element-plus";
 import AddChildAccount from "@/componet/addChildAccount.vue";
 import Child from "@/componet/child.vue";

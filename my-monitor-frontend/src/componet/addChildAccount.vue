@@ -11,20 +11,6 @@ const ruleForm = reactive({
   username: '',
   password: '',
 })
-
-const rules = reactive({
-  username: [{ validator: validatePass2, trigger: 'blur' }],
-  password: [{ validator: validatePass, trigger: 'blur' }]
-})
-
-const onSubmit = (ruleFormRef) => {
-  post("/user/add-sub-account",ruleFormRef,()=>{
-      ElMessage.success("添加成功")
-  },()=>{
-    ElMessage.error("添加用户失败->权限不足")
-  })
-}
-
 const validatePass = (rule,value,callback) => {
   if (value === '') {
     show.value=true
@@ -38,7 +24,7 @@ const validatePass = (rule,value,callback) => {
   }
 }
 
-const validatePass2 = (rule, value,callback) => {
+const validatePass1 = (rule, value,callback) => {
   if (value === '') {
     show.value=true
     callback(new Error('请输入用户名'))
@@ -50,6 +36,20 @@ const validatePass2 = (rule, value,callback) => {
     callback()
   }
 }
+const rules = reactive({
+  username: [{ validator: validatePass1, trigger: 'blur' }],
+  password: [{ validator: validatePass, trigger: 'blur' }]
+})
+
+const onSubmit = (ruleFormRef) => {
+  post("/user/add-sub-account",ruleFormRef,()=>{
+      ElMessage.success("添加成功")
+  },()=>{
+    ElMessage.error("添加用户失败->权限不足")
+  })
+}
+
+
 
 const upDateList = () => {
   get('/api/monitor/list',data => childAccount.value=data)
