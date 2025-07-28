@@ -58,7 +58,7 @@ function qChildAccount() {
   get("/user/select-sub-account", data =>{
     childAccount.value=data
   },()=>{
-    ElMessage.error("获取子用户失败->权限不足")
+    ElMessage.error("获取子用户失败->  权限不足")
   })
 }
 if(router.name==='Manage'){
@@ -111,6 +111,7 @@ if(router.name==='Manage'){
       <el-button style="display:block;margin: 50px  auto;" type="primary" plain @click="showElDrawer">添加子用户</el-button>
     </div>
   </div>
+
 </template>
 <style scoped>
 .info-car{

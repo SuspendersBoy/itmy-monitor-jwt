@@ -1,4 +1,4 @@
-# 生产环境配置
+# 开发环境配置
 logging:
   level:
     org.springframework.security: OFF  # 关闭 Spring Security 所有日志
@@ -7,12 +7,14 @@ springdoc:
   swagger-ui:
     operations-sorter: alpha
 spring:
+  jmx:
+    enabled: true
   mail:
     host: smtp.163.com
     username: 17870285953@163.com
     password: NUfPdyYsZDpRK5fV
   rabbitmq:
-    addresses: 192.168.101.129:22
+    addresses: 192.168.101.129
     username: admin
     password: admin
     virtual-host: /
@@ -48,5 +50,7 @@ influxdb:
   password: 12345678
   org: itmy
   bucket: monitor
+
 server:
   port: 8081
+token: FEulkN4JtvOsQ4fyy1cIVtSj

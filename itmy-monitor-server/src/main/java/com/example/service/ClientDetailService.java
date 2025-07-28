@@ -4,8 +4,10 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.example.entity.RestBean;
 import com.example.entity.dto.BaseDetailDto;
 import com.example.entity.vo.request.RuntimeDetailVO;
+import com.example.entity.vo.request.SshConnectionVO;
 import com.example.entity.vo.response.ClientPreviewVO;
 import com.example.entity.vo.response.fluxClient;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -21,4 +23,8 @@ public interface ClientDetailService extends IService<BaseDetailDto> {
     void deleteClient(String id);
 
     List<ClientPreviewVO> listAllUserClient(String id);
+
+    void sshSave(@Valid SshConnectionVO sshConnectionVO);
+
+    boolean sshSettings(String clientId);
 }

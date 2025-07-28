@@ -11,7 +11,7 @@
  Target Server Version : 80031
  File Encoding         : 65001
 
- Date: 22/07/2025 22:54:20
+ Date: 28/07/2025 14:26:45
 */
 
 SET NAMES utf8mb4;
@@ -29,12 +29,33 @@ CREATE TABLE `db_account`  (
   `role` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `register_time` date NOT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 14 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of db_account
 -- ----------------------------
-INSERT INTO `db_account` VALUES (1, 'admin', '$2a$10$grgYR6dmrTT7cFtshF0Axea8BYuuTnI9ruFY3a9EcbI99UiJp56Wm', '2855519269@qq.com', 'user', '2025-07-18');
+INSERT INTO `db_account` VALUES (1, 'admin', '$2a$10$LYizp3gYyjlh4M1iaKLfLOlgSl9c79EKAQwaI8vKaod6piV7Cp3o.', '2855519269@qq.com', 'admin', '2025-07-18');
+INSERT INTO `db_account` VALUES (11, 'wyc', '$2a$10$sRq5Apq1kouZQCaDbpTQlOjdJ/kIPcTQmaI5N7J33RbhovIXDmlOS', '', 'user', '2025-07-25');
+INSERT INTO `db_account` VALUES (13, 'nmlgb', '$2a$10$qUvIGAjC6BBNZ2ZbQEw6wOyMIIULTfI/zV1nxD/NNVXhbPGGIGQ5O', '', 'user', '2025-07-25');
+
+-- ----------------------------
+-- Table structure for db_child_account
+-- ----------------------------
+DROP TABLE IF EXISTS `db_child_account`;
+CREATE TABLE `db_child_account`  (
+  `id` int(0) NOT NULL AUTO_INCREMENT,
+  `username` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `role` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `client` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `register_time` datetime(0) NOT NULL,
+  `parent_id` int(0) NOT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 14 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of db_child_account
+-- ----------------------------
 
 -- ----------------------------
 -- Table structure for db_client_detail
@@ -53,7 +74,7 @@ CREATE TABLE `db_client_detail`  (
   `ip` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `client_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2133917698 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 69 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of db_client_detail
@@ -75,6 +96,24 @@ CREATE TABLE `db_client_register`  (
 
 -- ----------------------------
 -- Records of db_client_register
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for db_client_ssh
+-- ----------------------------
+DROP TABLE IF EXISTS `db_client_ssh`;
+CREATE TABLE `db_client_ssh`  (
+  `id` int(0) NOT NULL AUTO_INCREMENT,
+  `IP` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `port` int(0) NOT NULL,
+  `username` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `client_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 50 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of db_client_ssh
 -- ----------------------------
 
 SET FOREIGN_KEY_CHECKS = 1;

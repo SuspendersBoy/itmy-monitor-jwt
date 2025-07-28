@@ -1,6 +1,5 @@
 <script setup>
 import {useClipboard} from "@vueuse/core";
-import {reactive} from "vue";
 
 const props= defineProps({
   data: Object

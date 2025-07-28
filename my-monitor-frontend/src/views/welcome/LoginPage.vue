@@ -1,3 +1,34 @@
+<script setup>
+import {User, Lock} from '@element-plus/icons-vue'
+import router from "@/router";
+import {reactive, ref} from "vue";
+import {login} from '@/net'
+
+const formRef = ref()
+const form = reactive({
+  username: '',
+  password: '',
+  remember: false
+})
+
+const rules = {
+  username: [
+    { required: true, message: '请输入用户名' }
+  ],
+  password: [
+    { required: true, message: '请输入密码'}
+  ]
+}
+
+function userLogin() {
+  formRef.value.validate((isValid) => {
+    if(isValid) {
+      login(form.username, form.password, form.remember, () => router.push("/index"))
+    }
+  });
+}
+</script>
+
 <template>
   <div style="text-align: center;margin: 0 20px">
     <div style="margin-top: 150px">
@@ -42,37 +73,6 @@
 
   </div>
 </template>
-
-<script setup>
-import {User, Lock} from '@element-plus/icons-vue'
-import router from "@/router";
-import {reactive, ref} from "vue";
-import {login} from '@/net'
-
-const formRef = ref()
-const form = reactive({
-  username: '',
-  password: '',
-  remember: false
-})
-
-const rules = {
-  username: [
-    { required: true, message: '请输入用户名' }
-  ],
-  password: [
-    { required: true, message: '请输入密码'}
-  ]
-}
-
-function userLogin() {
-  formRef.value.validate((isValid) => {
-    if(isValid) {
-      login(form.username, form.password, form.remember, () => router.push("/index"))
-    }
-  });
-}
-</script>
 
 <style scoped>
 

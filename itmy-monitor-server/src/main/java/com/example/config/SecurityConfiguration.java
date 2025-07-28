@@ -56,6 +56,7 @@ public class SecurityConfiguration {
                         .requestMatchers("/api/auth/**", "/error").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/client/**").permitAll()
+                        .requestMatchers("/websocket").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(conf -> conf

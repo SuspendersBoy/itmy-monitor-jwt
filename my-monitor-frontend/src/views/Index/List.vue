@@ -1,13 +1,18 @@
-<script setup>
+<script setup lang="ts">
 import Client from "@/componet/Client.vue";
-import {reactive, ref} from "vue";
+import {onMounted, reactive, ref} from "vue";
 import {get} from "@/net";
 import ClientDetails from "@/componet/ClientDetails.vue";
 import {Plus} from "@element-plus/icons-vue";
 import RegisterCard from "@/componet/RegisterCard.vue";
 import {useRoute} from "vue-router";
+import ShhConnetction from "@/componet/shh-connetction.vue";
+import {log} from "echarts/types/src/util/log";
 const route= useRoute();
-const list=ref([])
+const list = ref<[]>([]);
+const clientId=ref()
+const is=ref<Boolean>(true);
+const childRef = ref(null)
 const details=reactive({
   detail:{}
 })
@@ -16,7 +21,7 @@ const upDateList = () => {
     get('/api/monitor/list',data => list.value=data)
   }
 }
-setInterval(upDateList,5000)
+setInterval(upDateList,15000)
 upDateList()
 
 // 定义响应式数据，控制抽屉显示状态和传递的 id
@@ -40,16 +45,24 @@ const getToken = () => {
 };
 
 const displayClientDetails = (id) => {
+  clientId.value=id
   detail.show = true;// 显示抽屉
   clientItem(id)
 };
 const drawer = ref(false)
+const shh = ref(false)
 
 const addClient = () => {
   drawer.value=!drawer.value
   if(!T.Token){
     getToken()
   }
+}
+const handleFormUpdate = () => {
+  get(`api/monitor/ssh?clientId=${clientId.value}`, ()=> {is.value=false, childRef.value?.childMethod()},()=>{is.value=true},()=>{is.value=true})
+  detail.show=!detail.show
+  shh.value=!shh.value
+
 }
 
 
@@ -68,22 +81,32 @@ const addClient = () => {
         </el-button>
       </div>
     </div>
+
     <el-divider style="margin: 10px 0"/>
+
     <div class="list-card">
       <Client v-for="item in list"  :data="item" @click="displayClientDetails(item.clientId)"/>
-      <el-drawer size="520"  :show-close="false" v-model="detail.show" :with-header="false" v-if="list.length">
-          <ClientDetails v-if="details.detail"  :data="details.detail" ></ClientDetails>
+        <el-drawer size="520"  :show-close="false" v-model="detail.show" :with-header="false">
+          <ClientDetails :data="details.detail" @updateForm="handleFormUpdate"></ClientDetails>
       </el-drawer>
     </div>
+
     <div class="Register">
       <div class="hint" v-if="list.length<=0">
        请添加主机
         <i class="fa-solid fa-cart-arrow-down"></i>
       </div>
-      <el-drawer  size="430px" v-model="drawer" title="添加主机事例说明" :direction="'btt'" style="width: 1200px ; margin: 0 auto">
+      <el-drawer  size="430px" v-model="drawer" title="添加主机事例说明" :direction="'btt'" style="width: 1200px ; margin: 0 auto" @updateForm="handleFormUpdate">
         <RegisterCard :token="T.Token" v-if="T.Token"/>
       </el-drawer>
     </div>
+
+    <div>
+      <el-drawer v-model="shh" direction="btt" size="650px" close-on-click-modal=false title="ssh 连接">
+        <shh-connetction  ref="childRef" :clientId="clientId" :is="is"/>
+      </el-drawer>
+    </div>
+
   </div>
 </template>
 

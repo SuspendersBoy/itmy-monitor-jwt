@@ -67,10 +67,7 @@ function changePage(item){
       </div>
     </el-header>
 
-
-
     <el-main class="main-content" >
-
       <router-view v-slot="{ Component }">
         <transition name="el-fade-in-linear" mode="out-in">
          <keep-alive>
@@ -81,8 +78,6 @@ function changePage(item){
 
     </el-main>
   </el-container>
-
-
 </template>
 
 

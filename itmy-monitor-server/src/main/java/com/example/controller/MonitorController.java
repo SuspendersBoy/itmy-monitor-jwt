@@ -42,13 +42,14 @@ public class MonitorController {
         }
         return RestBean.success(clientDetailService.listAllUserClient(id));
     }
-
+    //服务器连接信息
     @PostMapping("ssh-save")
     public RestBean<Void> sshSave(@RequestBody @Valid SshConnectionVO sshConnectionVO){
+        clientDetailService.sshSave(sshConnectionVO);
         return RestBean.success();
     }
     @GetMapping("/ssh")
-    public RestBean<SshSettingsVO> sshSettings() {
-      return  RestBean.success();
+    public RestBean<SshSettingsVO> sshSettings(@RequestParam String clientId) {
+      return  clientDetailService.sshSettings(clientId) ? RestBean.success():RestBean.forbidden("服务器未注册");
     }
 }
